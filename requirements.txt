@@ -1,0 +1,12 @@
+# Python 3.10; install PyTorch/torchvision separately for your CUDA platform.
+numpy==2.2.6
+pandas==2.3.3
+scipy==1.15.2
+scikit-learn==1.4.2
+matplotlib==3.10.8
+tensorboard==2.20.0
+PyYAML==6.0.3
+arrow==1.4.0
+tqdm==4.67.3
+Pillow==10.4.0
+Jinja2==3.1.6

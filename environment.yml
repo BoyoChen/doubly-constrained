@@ -1,0 +1,10 @@
+name: doubly-constrained
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+  - pip:
+      - torch==2.4.1
+      - torchvision==0.19.1
+      - -r requirements.txt

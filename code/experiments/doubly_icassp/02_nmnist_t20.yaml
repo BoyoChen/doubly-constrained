@@ -1,0 +1,2013 @@
+experiment_name: paper_doubly_nmnist_v3
+shared_settings: {}
+sub_experiments:
+- data:
+    dataset_name: NMNIST
+    batch_size: 200
+    label_perm: false
+    use_DoG: false
+    DoG_settings: {}
+    cache_transforms: false
+    cache_dtype: null
+    event_frame_settings:
+      temporal_bins: 20
+      representation: binary
+      spatial_downsample: 1
+      first_saccade_only: false
+  training_settings:
+    max_epoch: 8
+    min_epoch: 0
+    sleep_freq: 99999
+    evaluate_freq: 2
+    STDP_interval: 1
+    stdp_update_mode: two_pass_decision_contingent
+    simulation_forward_mode: streaming
+    save_best_model: false
+    save_final_model: false
+    evaluation_level: 3
+    evaluation_phases:
+    - valid
+    - test
+    final_evaluation_phases:
+    - valid
+    - test
+    training_schedule:
+      enabled: true
+      stages:
+      - start_epoch: 2
+        frozen_cortex_ids:
+        - A-1
+    diagnostic_settings:
+      readout: false
+      ablation_chart: false
+      singular_value_spectrum: false
+      top_maps_plot: false
+      confusion_matrix: true
+      cortex_statistics: true
+      threshold_distribution: true
+      sample_activity_images: false
+      temporal_sample_metrics: true
+      sample_activity_phases:
+      - valid
+      - test
+      hinge_temporal_metrics: true
+      hinge_temporal_phases:
+      - valid
+      - test
+      per_neuron_activity: true
+      per_neuron_activity_phases:
+      - valid
+      - test
+      per_neuron_activity_max_batches: 30
+      gpu_usage: true
+      model_shape: false
+      kernel_heatmaps: false
+      readout_fusion: false
+      readout_error_overlap: false
+      training_invariant_audit:
+        cortex_ids:
+        - A-1
+        - A
+        root_cortex_id: A
+        audit_root_direct: true
+        audit_root_branch: false
+      normalization_mechanism_artifacts: true
+      normalization_mechanism_trajectory_epochs:
+      - 8
+      normalization_mechanism_trajectory_phases:
+      - test
+      normalization_mechanism_artifact_micro_batch_size: 20
+      normalization_mechanism_save_full_weight: true
+      normalization_mechanism_full_weight_epochs:
+      - 8
+    readout_params:
+      weight_decay: 0.0001
+      optimizer: lbfgs
+      max_iter: 200
+      lr: 0.001
+      epochs: 0
+    evaluation_micro_batch_size: 200
+  model:
+    target_mean_earliness: 0.08
+    cortex_spec:
+      PCA_cortex_settings:
+        PCA_settings:
+          leave_out_num: 2
+          method: PCA
+          normalizing: true
+          remained_variance: 1
+          transpose: false
+        new_cortex_split_ratio: 1
+        refund_with_amplifier: true
+        regularize_afterward: false
+        split_only_tail: true
+        weight_refund: true
+      STDP_cortex_settings:
+        init_D_P_rate_ratio: 0.7
+        init_P_rate: 1.0e-06
+        learning_rate_decrease_base: 0
+      base_cortex_settings:
+        amplifier_settings:
+          log_amplifier_delta: 6.25e-06
+          target_mean_first_spike_earliness:
+            delay_factor: 0.5
+            min_target_earliness: 0.02
+            max_target_earliness: 0.6
+          lower_bound: 1.0e-05
+          upper_bound: 999999999
+        kernel_settings:
+          init_mean: 0.8
+          init_std: 0.05
+          minimal_weight: 5.5e-05
+          no_skip_links: true
+          non_negative_weights: false
+          normalize_settings:
+            dim_0_freq: 1
+            dim_1_freq: 0
+            freq_diff: 0
+            norm_p: 1
+            out_weight_len: 1
+            use_shape_ratio: true
+            dim_1_mode: per_sender
+            dim_0_freq_by_cortex:
+              A: 1
+              A-1: 1
+            dim_1_freq_by_cortex:
+              A: 0
+              A-1: 0
+        lateral_inhibition:
+          factor: 30.0
+          power: 1.0
+        top_k: 4
+      neuron_vectors_spec:
+        potential_decay_rate: 1.0
+        reset_state: 0
+        resting_length: 999
+        threshold_settings:
+          homeostasis_ema_decay: 0.0
+          log_thresholds_delta: 0.00125
+          lower_bound: 1.0
+          upper_bound: 100.0
+          initial_threshold: 10.0
+          target_mean_first_spike_factor: 0.08
+      spike_trace_settings:
+        balanced_spike_trace: true
+        spike_decay_rate: 0.97
+    image_encoder_spec:
+      encoder: direct_event_bins
+      simulation_time: 20
+      temporal_bins: 20
+      channels_per_bin: 2
+      binarize: true
+    init_cortex:
+      fix_shape: true
+      input_channel: 2
+      kernel_size: 34
+      output_channel: 10
+      stride: 4
+      init_amplifier: 10
+      competition_group_N: 45
+      pooling_settings:
+        mode: max
+        kernel_size: global
+      subcortexs:
+      - fix_shape: true
+        input_channel: 2
+        kernel_size: 9
+        output_channel: 330
+        stride: 2
+        init_amplifier: 10
+        pooling_settings:
+          mode: max
+          kernel_size: 2
+    remember_settings:
+      STDP_mechanism:
+        label_usage: signed_ltp
+        label_propagating: false
+        hinge_softmax_label:
+          margin: 0.35
+          label_scope: class_aggregate
+          positive_scale: 32.0
+          negative_scale: 100.0
+          wrong_background_value: 0.0
+          softmax_temperature: 0.25
+          correct_background_value: 0.0
+      self_cleaning_after_STDP: false
+  sub_exp_name: nmnist_post_every
+  seed:
+  - 35100
+  - 35101
+  - 35102
+  - 35103
+  description:
+    subexp: Post every batch; output-only schedule unless explicitly hidden_only/all_layers;
+      matched dataset base.
+- data:
+    dataset_name: NMNIST
+    batch_size: 200
+    label_perm: false
+    use_DoG: false
+    DoG_settings: {}
+    cache_transforms: false
+    cache_dtype: null
+    event_frame_settings:
+      temporal_bins: 20
+      representation: binary
+      spatial_downsample: 1
+      first_saccade_only: false
+  training_settings:
+    max_epoch: 8
+    min_epoch: 0
+    sleep_freq: 99999
+    evaluate_freq: 2
+    STDP_interval: 1
+    stdp_update_mode: two_pass_decision_contingent
+    simulation_forward_mode: streaming
+    save_best_model: false
+    save_final_model: false
+    evaluation_level: 3
+    evaluation_phases:
+    - valid
+    - test
+    final_evaluation_phases:
+    - valid
+    - test
+    training_schedule:
+      enabled: true
+      stages:
+      - start_epoch: 2
+        frozen_cortex_ids:
+        - A-1
+    diagnostic_settings:
+      readout: false
+      ablation_chart: false
+      singular_value_spectrum: false
+      top_maps_plot: false
+      confusion_matrix: true
+      cortex_statistics: true
+      threshold_distribution: true
+      sample_activity_images: false
+      temporal_sample_metrics: true
+      sample_activity_phases:
+      - valid
+      - test
+      hinge_temporal_metrics: true
+      hinge_temporal_phases:
+      - valid
+      - test
+      per_neuron_activity: true
+      per_neuron_activity_phases:
+      - valid
+      - test
+      per_neuron_activity_max_batches: 30
+      gpu_usage: true
+      model_shape: false
+      kernel_heatmaps: false
+      readout_fusion: false
+      readout_error_overlap: false
+      training_invariant_audit:
+        cortex_ids:
+        - A-1
+        - A
+        root_cortex_id: A
+        audit_root_direct: true
+        audit_root_branch: false
+      normalization_mechanism_artifacts: true
+      normalization_mechanism_trajectory_epochs:
+      - 8
+      normalization_mechanism_trajectory_phases:
+      - test
+      normalization_mechanism_artifact_micro_batch_size: 20
+      normalization_mechanism_save_full_weight: true
+      normalization_mechanism_full_weight_epochs:
+      - 8
+    readout_params:
+      weight_decay: 0.0001
+      optimizer: lbfgs
+      max_iter: 200
+      lr: 0.001
+      epochs: 0
+    evaluation_micro_batch_size: 200
+  model:
+    target_mean_earliness: 0.08
+    cortex_spec:
+      PCA_cortex_settings:
+        PCA_settings:
+          leave_out_num: 2
+          method: PCA
+          normalizing: true
+          remained_variance: 1
+          transpose: false
+        new_cortex_split_ratio: 1
+        refund_with_amplifier: true
+        regularize_afterward: false
+        split_only_tail: true
+        weight_refund: true
+      STDP_cortex_settings:
+        init_D_P_rate_ratio: 0.7
+        init_P_rate: 1.0e-06
+        learning_rate_decrease_base: 0
+      base_cortex_settings:
+        amplifier_settings:
+          log_amplifier_delta: 6.25e-06
+          target_mean_first_spike_earliness:
+            delay_factor: 0.5
+            min_target_earliness: 0.02
+            max_target_earliness: 0.6
+          lower_bound: 1.0e-05
+          upper_bound: 999999999
+        kernel_settings:
+          init_mean: 0.8
+          init_std: 0.05
+          minimal_weight: 5.5e-05
+          no_skip_links: true
+          non_negative_weights: false
+          normalize_settings:
+            dim_0_freq: 2
+            dim_1_freq: 0
+            freq_diff: 0
+            norm_p: 1
+            out_weight_len: 1
+            use_shape_ratio: true
+            dim_1_mode: per_sender
+            dim_0_freq_by_cortex:
+              A: 2
+              A-1: 1
+            dim_1_freq_by_cortex:
+              A: 0
+              A-1: 0
+        lateral_inhibition:
+          factor: 30.0
+          power: 1.0
+        top_k: 4
+      neuron_vectors_spec:
+        potential_decay_rate: 1.0
+        reset_state: 0
+        resting_length: 999
+        threshold_settings:
+          homeostasis_ema_decay: 0.0
+          log_thresholds_delta: 0.00125
+          lower_bound: 1.0
+          upper_bound: 100.0
+          initial_threshold: 10.0
+          target_mean_first_spike_factor: 0.08
+      spike_trace_settings:
+        balanced_spike_trace: true
+        spike_decay_rate: 0.97
+    image_encoder_spec:
+      encoder: direct_event_bins
+      simulation_time: 20
+      temporal_bins: 20
+      channels_per_bin: 2
+      binarize: true
+    init_cortex:
+      fix_shape: true
+      input_channel: 2
+      kernel_size: 34
+      output_channel: 10
+      stride: 4
+      init_amplifier: 10
+      competition_group_N: 45
+      pooling_settings:
+        mode: max
+        kernel_size: global
+      subcortexs:
+      - fix_shape: true
+        input_channel: 2
+        kernel_size: 9
+        output_channel: 330
+        stride: 2
+        init_amplifier: 10
+        pooling_settings:
+          mode: max
+          kernel_size: 2
+    remember_settings:
+      STDP_mechanism:
+        label_usage: signed_ltp
+        label_propagating: false
+        hinge_softmax_label:
+          margin: 0.35
+          label_scope: class_aggregate
+          positive_scale: 32.0
+          negative_scale: 100.0
+          wrong_background_value: 0.0
+          softmax_temperature: 0.25
+          correct_background_value: 0.0
+      self_cleaning_after_STDP: false
+  sub_exp_name: nmnist_post_half
+  seed:
+  - 35100
+  - 35101
+  - 35102
+  - 35103
+  description:
+    subexp: Post every other batch; output-only schedule unless explicitly hidden_only/all_layers;
+      matched dataset base.
+- data:
+    dataset_name: NMNIST
+    batch_size: 200
+    label_perm: false
+    use_DoG: false
+    DoG_settings: {}
+    cache_transforms: false
+    cache_dtype: null
+    event_frame_settings:
+      temporal_bins: 20
+      representation: binary
+      spatial_downsample: 1
+      first_saccade_only: false
+  training_settings:
+    max_epoch: 8
+    min_epoch: 0
+    sleep_freq: 99999
+    evaluate_freq: 2
+    STDP_interval: 1
+    stdp_update_mode: two_pass_decision_contingent
+    simulation_forward_mode: streaming
+    save_best_model: false
+    save_final_model: false
+    evaluation_level: 3
+    evaluation_phases:
+    - valid
+    - test
+    final_evaluation_phases:
+    - valid
+    - test
+    training_schedule:
+      enabled: true
+      stages:
+      - start_epoch: 2
+        frozen_cortex_ids:
+        - A-1
+    diagnostic_settings:
+      readout: false
+      ablation_chart: false
+      singular_value_spectrum: false
+      top_maps_plot: false
+      confusion_matrix: true
+      cortex_statistics: true
+      threshold_distribution: true
+      sample_activity_images: false
+      temporal_sample_metrics: true
+      sample_activity_phases:
+      - valid
+      - test
+      hinge_temporal_metrics: true
+      hinge_temporal_phases:
+      - valid
+      - test
+      per_neuron_activity: true
+      per_neuron_activity_phases:
+      - valid
+      - test
+      per_neuron_activity_max_batches: 30
+      gpu_usage: true
+      model_shape: false
+      kernel_heatmaps: false
+      readout_fusion: false
+      readout_error_overlap: false
+      training_invariant_audit:
+        cortex_ids:
+        - A-1
+        - A
+        root_cortex_id: A
+        audit_root_direct: true
+        audit_root_branch: false
+      normalization_mechanism_artifacts: true
+      normalization_mechanism_trajectory_epochs:
+      - 8
+      normalization_mechanism_trajectory_phases:
+      - test
+      normalization_mechanism_artifact_micro_batch_size: 20
+      normalization_mechanism_save_full_weight: true
+      normalization_mechanism_full_weight_epochs:
+      - 8
+    readout_params:
+      weight_decay: 0.0001
+      optimizer: lbfgs
+      max_iter: 200
+      lr: 0.001
+      epochs: 0
+    evaluation_micro_batch_size: 200
+  model:
+    target_mean_earliness: 0.08
+    cortex_spec:
+      PCA_cortex_settings:
+        PCA_settings:
+          leave_out_num: 2
+          method: PCA
+          normalizing: true
+          remained_variance: 1
+          transpose: false
+        new_cortex_split_ratio: 1
+        refund_with_amplifier: true
+        regularize_afterward: false
+        split_only_tail: true
+        weight_refund: true
+      STDP_cortex_settings:
+        init_D_P_rate_ratio: 0.7
+        init_P_rate: 1.0e-06
+        learning_rate_decrease_base: 0
+      base_cortex_settings:
+        amplifier_settings:
+          log_amplifier_delta: 6.25e-06
+          target_mean_first_spike_earliness:
+            delay_factor: 0.5
+            min_target_earliness: 0.02
+            max_target_earliness: 0.6
+          lower_bound: 1.0e-05
+          upper_bound: 999999999
+        kernel_settings:
+          init_mean: 0.8
+          init_std: 0.05
+          minimal_weight: 5.5e-05
+          no_skip_links: true
+          non_negative_weights: false
+          normalize_settings:
+            dim_0_freq: 0
+            dim_1_freq: 0
+            freq_diff: 0
+            norm_p: 1
+            out_weight_len: 1
+            use_shape_ratio: true
+            dim_1_mode: per_sender
+            dim_0_freq_by_cortex:
+              A: 0
+              A-1: 1
+            dim_1_freq_by_cortex:
+              A: 0
+              A-1: 0
+        lateral_inhibition:
+          factor: 30.0
+          power: 1.0
+        top_k: 4
+      neuron_vectors_spec:
+        potential_decay_rate: 1.0
+        reset_state: 0
+        resting_length: 999
+        threshold_settings:
+          homeostasis_ema_decay: 0.0
+          log_thresholds_delta: 0.00125
+          lower_bound: 1.0
+          upper_bound: 100.0
+          initial_threshold: 10.0
+          target_mean_first_spike_factor: 0.08
+      spike_trace_settings:
+        balanced_spike_trace: true
+        spike_decay_rate: 0.97
+    image_encoder_spec:
+      encoder: direct_event_bins
+      simulation_time: 20
+      temporal_bins: 20
+      channels_per_bin: 2
+      binarize: true
+    init_cortex:
+      fix_shape: true
+      input_channel: 2
+      kernel_size: 34
+      output_channel: 10
+      stride: 4
+      init_amplifier: 10
+      competition_group_N: 45
+      pooling_settings:
+        mode: max
+        kernel_size: global
+      subcortexs:
+      - fix_shape: true
+        input_channel: 2
+        kernel_size: 9
+        output_channel: 330
+        stride: 2
+        init_amplifier: 10
+        pooling_settings:
+          mode: max
+          kernel_size: 2
+    remember_settings:
+      STDP_mechanism:
+        label_usage: signed_ltp
+        label_propagating: false
+        hinge_softmax_label:
+          margin: 0.35
+          label_scope: class_aggregate
+          positive_scale: 32.0
+          negative_scale: 100.0
+          wrong_background_value: 0.0
+          softmax_temperature: 0.25
+          correct_background_value: 0.0
+      self_cleaning_after_STDP: false
+  sub_exp_name: nmnist_none
+  seed:
+  - 35100
+  - 35101
+  - 35102
+  - 35103
+  description:
+    subexp: None; output-only schedule unless explicitly hidden_only/all_layers; matched
+      dataset base.
+- data:
+    dataset_name: NMNIST
+    batch_size: 200
+    label_perm: false
+    use_DoG: false
+    DoG_settings: {}
+    cache_transforms: false
+    cache_dtype: null
+    event_frame_settings:
+      temporal_bins: 20
+      representation: binary
+      spatial_downsample: 1
+      first_saccade_only: false
+  training_settings:
+    max_epoch: 8
+    min_epoch: 0
+    sleep_freq: 99999
+    evaluate_freq: 2
+    STDP_interval: 1
+    stdp_update_mode: two_pass_decision_contingent
+    simulation_forward_mode: streaming
+    save_best_model: false
+    save_final_model: false
+    evaluation_level: 3
+    evaluation_phases:
+    - valid
+    - test
+    final_evaluation_phases:
+    - valid
+    - test
+    training_schedule:
+      enabled: true
+      stages:
+      - start_epoch: 2
+        frozen_cortex_ids:
+        - A-1
+    diagnostic_settings:
+      readout: false
+      ablation_chart: false
+      singular_value_spectrum: false
+      top_maps_plot: false
+      confusion_matrix: true
+      cortex_statistics: true
+      threshold_distribution: true
+      sample_activity_images: false
+      temporal_sample_metrics: true
+      sample_activity_phases:
+      - valid
+      - test
+      hinge_temporal_metrics: true
+      hinge_temporal_phases:
+      - valid
+      - test
+      per_neuron_activity: true
+      per_neuron_activity_phases:
+      - valid
+      - test
+      per_neuron_activity_max_batches: 30
+      gpu_usage: true
+      model_shape: false
+      kernel_heatmaps: false
+      readout_fusion: false
+      readout_error_overlap: false
+      training_invariant_audit:
+        cortex_ids:
+        - A-1
+        - A
+        root_cortex_id: A
+        audit_root_direct: true
+        audit_root_branch: false
+      normalization_mechanism_artifacts: true
+      normalization_mechanism_trajectory_epochs:
+      - 8
+      normalization_mechanism_trajectory_phases:
+      - test
+      normalization_mechanism_artifact_micro_batch_size: 20
+      normalization_mechanism_save_full_weight: true
+      normalization_mechanism_full_weight_epochs:
+      - 8
+    readout_params:
+      weight_decay: 0.0001
+      optimizer: lbfgs
+      max_iter: 200
+      lr: 0.001
+      epochs: 0
+    evaluation_micro_batch_size: 200
+  model:
+    target_mean_earliness: 0.08
+    cortex_spec:
+      PCA_cortex_settings:
+        PCA_settings:
+          leave_out_num: 2
+          method: PCA
+          normalizing: true
+          remained_variance: 1
+          transpose: false
+        new_cortex_split_ratio: 1
+        refund_with_amplifier: true
+        regularize_afterward: false
+        split_only_tail: true
+        weight_refund: true
+      STDP_cortex_settings:
+        init_D_P_rate_ratio: 0.7
+        init_P_rate: 1.0e-06
+        learning_rate_decrease_base: 0
+      base_cortex_settings:
+        amplifier_settings:
+          log_amplifier_delta: 6.25e-06
+          target_mean_first_spike_earliness:
+            delay_factor: 0.5
+            min_target_earliness: 0.02
+            max_target_earliness: 0.6
+          lower_bound: 1.0e-05
+          upper_bound: 999999999
+        kernel_settings:
+          init_mean: 0.8
+          init_std: 0.05
+          minimal_weight: 5.5e-05
+          no_skip_links: true
+          non_negative_weights: false
+          normalize_settings:
+            dim_0_freq: 0
+            dim_1_freq: 1
+            freq_diff: 0
+            norm_p: 1
+            out_weight_len: 1
+            use_shape_ratio: true
+            dim_1_mode: per_sender
+            dim_0_freq_by_cortex:
+              A: 0
+              A-1: 1
+            dim_1_freq_by_cortex:
+              A: 1
+              A-1: 0
+        lateral_inhibition:
+          factor: 30.0
+          power: 1.0
+        top_k: 4
+      neuron_vectors_spec:
+        potential_decay_rate: 1.0
+        reset_state: 0
+        resting_length: 999
+        threshold_settings:
+          homeostasis_ema_decay: 0.0
+          log_thresholds_delta: 0.00125
+          lower_bound: 1.0
+          upper_bound: 100.0
+          initial_threshold: 10.0
+          target_mean_first_spike_factor: 0.08
+      spike_trace_settings:
+        balanced_spike_trace: true
+        spike_decay_rate: 0.97
+    image_encoder_spec:
+      encoder: direct_event_bins
+      simulation_time: 20
+      temporal_bins: 20
+      channels_per_bin: 2
+      binarize: true
+    init_cortex:
+      fix_shape: true
+      input_channel: 2
+      kernel_size: 34
+      output_channel: 10
+      stride: 4
+      init_amplifier: 10
+      competition_group_N: 45
+      pooling_settings:
+        mode: max
+        kernel_size: global
+      subcortexs:
+      - fix_shape: true
+        input_channel: 2
+        kernel_size: 9
+        output_channel: 330
+        stride: 2
+        init_amplifier: 10
+        pooling_settings:
+          mode: max
+          kernel_size: 2
+    remember_settings:
+      STDP_mechanism:
+        label_usage: signed_ltp
+        label_propagating: false
+        hinge_softmax_label:
+          margin: 0.35
+          label_scope: class_aggregate
+          positive_scale: 32.0
+          negative_scale: 100.0
+          wrong_background_value: 0.0
+          softmax_temperature: 0.25
+          correct_background_value: 0.0
+      self_cleaning_after_STDP: false
+  sub_exp_name: nmnist_pre_every
+  seed:
+  - 35100
+  - 35101
+  - 35102
+  - 35103
+  description:
+    subexp: Pre every batch; output-only schedule unless explicitly hidden_only/all_layers;
+      matched dataset base.
+- data:
+    dataset_name: NMNIST
+    batch_size: 200
+    label_perm: false
+    use_DoG: false
+    DoG_settings: {}
+    cache_transforms: false
+    cache_dtype: null
+    event_frame_settings:
+      temporal_bins: 20
+      representation: binary
+      spatial_downsample: 1
+      first_saccade_only: false
+  training_settings:
+    max_epoch: 8
+    min_epoch: 0
+    sleep_freq: 99999
+    evaluate_freq: 2
+    STDP_interval: 1
+    stdp_update_mode: two_pass_decision_contingent
+    simulation_forward_mode: streaming
+    save_best_model: false
+    save_final_model: false
+    evaluation_level: 3
+    evaluation_phases:
+    - valid
+    - test
+    final_evaluation_phases:
+    - valid
+    - test
+    training_schedule:
+      enabled: true
+      stages:
+      - start_epoch: 2
+        frozen_cortex_ids:
+        - A-1
+    diagnostic_settings:
+      readout: false
+      ablation_chart: false
+      singular_value_spectrum: false
+      top_maps_plot: false
+      confusion_matrix: true
+      cortex_statistics: true
+      threshold_distribution: true
+      sample_activity_images: false
+      temporal_sample_metrics: true
+      sample_activity_phases:
+      - valid
+      - test
+      hinge_temporal_metrics: true
+      hinge_temporal_phases:
+      - valid
+      - test
+      per_neuron_activity: true
+      per_neuron_activity_phases:
+      - valid
+      - test
+      per_neuron_activity_max_batches: 30
+      gpu_usage: true
+      model_shape: false
+      kernel_heatmaps: false
+      readout_fusion: false
+      readout_error_overlap: false
+      training_invariant_audit:
+        cortex_ids:
+        - A-1
+        - A
+        root_cortex_id: A
+        audit_root_direct: true
+        audit_root_branch: false
+      normalization_mechanism_artifacts: true
+      normalization_mechanism_trajectory_epochs:
+      - 8
+      normalization_mechanism_trajectory_phases:
+      - test
+      normalization_mechanism_artifact_micro_batch_size: 20
+      normalization_mechanism_save_full_weight: true
+      normalization_mechanism_full_weight_epochs:
+      - 8
+    readout_params:
+      weight_decay: 0.0001
+      optimizer: lbfgs
+      max_iter: 200
+      lr: 0.001
+      epochs: 0
+    evaluation_micro_batch_size: 200
+  model:
+    target_mean_earliness: 0.08
+    cortex_spec:
+      PCA_cortex_settings:
+        PCA_settings:
+          leave_out_num: 2
+          method: PCA
+          normalizing: true
+          remained_variance: 1
+          transpose: false
+        new_cortex_split_ratio: 1
+        refund_with_amplifier: true
+        regularize_afterward: false
+        split_only_tail: true
+        weight_refund: true
+      STDP_cortex_settings:
+        init_D_P_rate_ratio: 0.7
+        init_P_rate: 1.0e-06
+        learning_rate_decrease_base: 0
+      base_cortex_settings:
+        amplifier_settings:
+          log_amplifier_delta: 6.25e-06
+          target_mean_first_spike_earliness:
+            delay_factor: 0.5
+            min_target_earliness: 0.02
+            max_target_earliness: 0.6
+          lower_bound: 1.0e-05
+          upper_bound: 999999999
+        kernel_settings:
+          init_mean: 0.8
+          init_std: 0.05
+          minimal_weight: 5.5e-05
+          no_skip_links: true
+          non_negative_weights: false
+          normalize_settings:
+            dim_0_freq: 0
+            dim_1_freq: 2
+            freq_diff: 1
+            norm_p: 1
+            out_weight_len: 1
+            use_shape_ratio: true
+            dim_1_mode: per_sender
+            dim_0_freq_by_cortex:
+              A: 0
+              A-1: 1
+            dim_1_freq_by_cortex:
+              A: 2
+              A-1: 0
+        lateral_inhibition:
+          factor: 30.0
+          power: 1.0
+        top_k: 4
+      neuron_vectors_spec:
+        potential_decay_rate: 1.0
+        reset_state: 0
+        resting_length: 999
+        threshold_settings:
+          homeostasis_ema_decay: 0.0
+          log_thresholds_delta: 0.00125
+          lower_bound: 1.0
+          upper_bound: 100.0
+          initial_threshold: 10.0
+          target_mean_first_spike_factor: 0.08
+      spike_trace_settings:
+        balanced_spike_trace: true
+        spike_decay_rate: 0.97
+    image_encoder_spec:
+      encoder: direct_event_bins
+      simulation_time: 20
+      temporal_bins: 20
+      channels_per_bin: 2
+      binarize: true
+    init_cortex:
+      fix_shape: true
+      input_channel: 2
+      kernel_size: 34
+      output_channel: 10
+      stride: 4
+      init_amplifier: 10
+      competition_group_N: 45
+      pooling_settings:
+        mode: max
+        kernel_size: global
+      subcortexs:
+      - fix_shape: true
+        input_channel: 2
+        kernel_size: 9
+        output_channel: 330
+        stride: 2
+        init_amplifier: 10
+        pooling_settings:
+          mode: max
+          kernel_size: 2
+    remember_settings:
+      STDP_mechanism:
+        label_usage: signed_ltp
+        label_propagating: false
+        hinge_softmax_label:
+          margin: 0.35
+          label_scope: class_aggregate
+          positive_scale: 32.0
+          negative_scale: 100.0
+          wrong_background_value: 0.0
+          softmax_temperature: 0.25
+          correct_background_value: 0.0
+      self_cleaning_after_STDP: false
+  sub_exp_name: nmnist_pre_half
+  seed:
+  - 35100
+  - 35101
+  - 35102
+  - 35103
+  description:
+    subexp: Pre every other batch; output-only schedule unless explicitly hidden_only/all_layers;
+      matched dataset base.
+- data:
+    dataset_name: NMNIST
+    batch_size: 200
+    label_perm: false
+    use_DoG: false
+    DoG_settings: {}
+    cache_transforms: false
+    cache_dtype: null
+    event_frame_settings:
+      temporal_bins: 20
+      representation: binary
+      spatial_downsample: 1
+      first_saccade_only: false
+  training_settings:
+    max_epoch: 8
+    min_epoch: 0
+    sleep_freq: 99999
+    evaluate_freq: 2
+    STDP_interval: 1
+    stdp_update_mode: two_pass_decision_contingent
+    simulation_forward_mode: streaming
+    save_best_model: false
+    save_final_model: false
+    evaluation_level: 3
+    evaluation_phases:
+    - valid
+    - test
+    final_evaluation_phases:
+    - valid
+    - test
+    training_schedule:
+      enabled: true
+      stages:
+      - start_epoch: 2
+        frozen_cortex_ids:
+        - A-1
+    diagnostic_settings:
+      readout: false
+      ablation_chart: false
+      singular_value_spectrum: false
+      top_maps_plot: false
+      confusion_matrix: true
+      cortex_statistics: true
+      threshold_distribution: true
+      sample_activity_images: false
+      temporal_sample_metrics: true
+      sample_activity_phases:
+      - valid
+      - test
+      hinge_temporal_metrics: true
+      hinge_temporal_phases:
+      - valid
+      - test
+      per_neuron_activity: true
+      per_neuron_activity_phases:
+      - valid
+      - test
+      per_neuron_activity_max_batches: 30
+      gpu_usage: true
+      model_shape: false
+      kernel_heatmaps: false
+      readout_fusion: false
+      readout_error_overlap: false
+      training_invariant_audit:
+        cortex_ids:
+        - A-1
+        - A
+        root_cortex_id: A
+        audit_root_direct: true
+        audit_root_branch: false
+      normalization_mechanism_artifacts: true
+      normalization_mechanism_trajectory_epochs:
+      - 8
+      normalization_mechanism_trajectory_phases:
+      - test
+      normalization_mechanism_artifact_micro_batch_size: 20
+      normalization_mechanism_save_full_weight: true
+      normalization_mechanism_full_weight_epochs:
+      - 8
+    readout_params:
+      weight_decay: 0.0001
+      optimizer: lbfgs
+      max_iter: 200
+      lr: 0.001
+      epochs: 0
+    evaluation_micro_batch_size: 200
+  model:
+    target_mean_earliness: 0.08
+    cortex_spec:
+      PCA_cortex_settings:
+        PCA_settings:
+          leave_out_num: 2
+          method: PCA
+          normalizing: true
+          remained_variance: 1
+          transpose: false
+        new_cortex_split_ratio: 1
+        refund_with_amplifier: true
+        regularize_afterward: false
+        split_only_tail: true
+        weight_refund: true
+      STDP_cortex_settings:
+        init_D_P_rate_ratio: 0.7
+        init_P_rate: 1.0e-06
+        learning_rate_decrease_base: 0
+      base_cortex_settings:
+        amplifier_settings:
+          log_amplifier_delta: 6.25e-06
+          target_mean_first_spike_earliness:
+            delay_factor: 0.5
+            min_target_earliness: 0.02
+            max_target_earliness: 0.6
+          lower_bound: 1.0e-05
+          upper_bound: 999999999
+        kernel_settings:
+          init_mean: 0.8
+          init_std: 0.05
+          minimal_weight: 5.5e-05
+          no_skip_links: true
+          non_negative_weights: false
+          normalize_settings:
+            dim_0_freq: 2
+            dim_1_freq: 2
+            freq_diff: 1
+            norm_p: 1
+            out_weight_len: 1
+            use_shape_ratio: true
+            dim_1_mode: per_sender
+            dim_0_freq_by_cortex:
+              A: 2
+              A-1: 1
+            dim_1_freq_by_cortex:
+              A: 2
+              A-1: 0
+        lateral_inhibition:
+          factor: 30.0
+          power: 1.0
+        top_k: 4
+      neuron_vectors_spec:
+        potential_decay_rate: 1.0
+        reset_state: 0
+        resting_length: 999
+        threshold_settings:
+          homeostasis_ema_decay: 0.0
+          log_thresholds_delta: 0.00125
+          lower_bound: 1.0
+          upper_bound: 100.0
+          initial_threshold: 10.0
+          target_mean_first_spike_factor: 0.08
+      spike_trace_settings:
+        balanced_spike_trace: true
+        spike_decay_rate: 0.97
+    image_encoder_spec:
+      encoder: direct_event_bins
+      simulation_time: 20
+      temporal_bins: 20
+      channels_per_bin: 2
+      binarize: true
+    init_cortex:
+      fix_shape: true
+      input_channel: 2
+      kernel_size: 34
+      output_channel: 10
+      stride: 4
+      init_amplifier: 10
+      competition_group_N: 45
+      pooling_settings:
+        mode: max
+        kernel_size: global
+      subcortexs:
+      - fix_shape: true
+        input_channel: 2
+        kernel_size: 9
+        output_channel: 330
+        stride: 2
+        init_amplifier: 10
+        pooling_settings:
+          mode: max
+          kernel_size: 2
+    remember_settings:
+      STDP_mechanism:
+        label_usage: signed_ltp
+        label_propagating: false
+        hinge_softmax_label:
+          margin: 0.35
+          label_scope: class_aggregate
+          positive_scale: 32.0
+          negative_scale: 100.0
+          wrong_background_value: 0.0
+          softmax_temperature: 0.25
+          correct_background_value: 0.0
+      self_cleaning_after_STDP: false
+  sub_exp_name: nmnist_alternating
+  seed:
+  - 35100
+  - 35101
+  - 35102
+  - 35103
+  description:
+    subexp: Doubly alternating; output-only schedule unless explicitly hidden_only/all_layers;
+      matched dataset base.
+- data:
+    dataset_name: NMNIST
+    batch_size: 200
+    label_perm: false
+    use_DoG: false
+    DoG_settings: {}
+    cache_transforms: false
+    cache_dtype: null
+    event_frame_settings:
+      temporal_bins: 20
+      representation: binary
+      spatial_downsample: 1
+      first_saccade_only: false
+  training_settings:
+    max_epoch: 8
+    min_epoch: 0
+    sleep_freq: 99999
+    evaluate_freq: 2
+    STDP_interval: 1
+    stdp_update_mode: two_pass_decision_contingent
+    simulation_forward_mode: streaming
+    save_best_model: false
+    save_final_model: false
+    evaluation_level: 3
+    evaluation_phases:
+    - valid
+    - test
+    final_evaluation_phases:
+    - valid
+    - test
+    training_schedule:
+      enabled: true
+      stages:
+      - start_epoch: 2
+        frozen_cortex_ids:
+        - A-1
+    diagnostic_settings:
+      readout: false
+      ablation_chart: false
+      singular_value_spectrum: false
+      top_maps_plot: false
+      confusion_matrix: true
+      cortex_statistics: true
+      threshold_distribution: true
+      sample_activity_images: false
+      temporal_sample_metrics: true
+      sample_activity_phases:
+      - valid
+      - test
+      hinge_temporal_metrics: true
+      hinge_temporal_phases:
+      - valid
+      - test
+      per_neuron_activity: true
+      per_neuron_activity_phases:
+      - valid
+      - test
+      per_neuron_activity_max_batches: 30
+      gpu_usage: true
+      model_shape: false
+      kernel_heatmaps: false
+      readout_fusion: false
+      readout_error_overlap: false
+      training_invariant_audit:
+        cortex_ids:
+        - A-1
+        - A
+        root_cortex_id: A
+        audit_root_direct: true
+        audit_root_branch: false
+      normalization_mechanism_artifacts: true
+      normalization_mechanism_trajectory_epochs:
+      - 8
+      normalization_mechanism_trajectory_phases:
+      - test
+      normalization_mechanism_artifact_micro_batch_size: 20
+      normalization_mechanism_save_full_weight: true
+      normalization_mechanism_full_weight_epochs:
+      - 8
+    readout_params:
+      weight_decay: 0.0001
+      optimizer: lbfgs
+      max_iter: 200
+      lr: 0.001
+      epochs: 0
+    evaluation_micro_batch_size: 200
+  model:
+    target_mean_earliness: 0.08
+    cortex_spec:
+      PCA_cortex_settings:
+        PCA_settings:
+          leave_out_num: 2
+          method: PCA
+          normalizing: true
+          remained_variance: 1
+          transpose: false
+        new_cortex_split_ratio: 1
+        refund_with_amplifier: true
+        regularize_afterward: false
+        split_only_tail: true
+        weight_refund: true
+      STDP_cortex_settings:
+        init_D_P_rate_ratio: 0.7
+        init_P_rate: 1.0e-06
+        learning_rate_decrease_base: 0
+      base_cortex_settings:
+        amplifier_settings:
+          log_amplifier_delta: 6.25e-06
+          target_mean_first_spike_earliness:
+            delay_factor: 0.5
+            min_target_earliness: 0.02
+            max_target_earliness: 0.6
+          lower_bound: 1.0e-05
+          upper_bound: 999999999
+        kernel_settings:
+          init_mean: 0.8
+          init_std: 0.05
+          minimal_weight: 5.5e-05
+          no_skip_links: true
+          non_negative_weights: false
+          normalize_settings:
+            dim_0_freq: 1
+            dim_1_freq: 1
+            freq_diff: 0
+            norm_p: 1
+            out_weight_len: 1
+            use_shape_ratio: true
+            dim_1_mode: per_sender
+            dim_0_freq_by_cortex:
+              A: 1
+              A-1: 1
+            dim_1_freq_by_cortex:
+              A: 1
+              A-1: 0
+        lateral_inhibition:
+          factor: 30.0
+          power: 1.0
+        top_k: 4
+      neuron_vectors_spec:
+        potential_decay_rate: 1.0
+        reset_state: 0
+        resting_length: 999
+        threshold_settings:
+          homeostasis_ema_decay: 0.0
+          log_thresholds_delta: 0.00125
+          lower_bound: 1.0
+          upper_bound: 100.0
+          initial_threshold: 10.0
+          target_mean_first_spike_factor: 0.08
+      spike_trace_settings:
+        balanced_spike_trace: true
+        spike_decay_rate: 0.97
+    image_encoder_spec:
+      encoder: direct_event_bins
+      simulation_time: 20
+      temporal_bins: 20
+      channels_per_bin: 2
+      binarize: true
+    init_cortex:
+      fix_shape: true
+      input_channel: 2
+      kernel_size: 34
+      output_channel: 10
+      stride: 4
+      init_amplifier: 10
+      competition_group_N: 45
+      pooling_settings:
+        mode: max
+        kernel_size: global
+      subcortexs:
+      - fix_shape: true
+        input_channel: 2
+        kernel_size: 9
+        output_channel: 330
+        stride: 2
+        init_amplifier: 10
+        pooling_settings:
+          mode: max
+          kernel_size: 2
+    remember_settings:
+      STDP_mechanism:
+        label_usage: signed_ltp
+        label_propagating: false
+        hinge_softmax_label:
+          margin: 0.35
+          label_scope: class_aggregate
+          positive_scale: 32.0
+          negative_scale: 100.0
+          wrong_background_value: 0.0
+          softmax_temperature: 0.25
+          correct_background_value: 0.0
+      self_cleaning_after_STDP: false
+  sub_exp_name: nmnist_simultaneous
+  seed:
+  - 35100
+  - 35101
+  - 35102
+  - 35103
+  description:
+    subexp: Post then pre every batch; output-only schedule unless explicitly hidden_only/all_layers;
+      matched dataset base.
+- data:
+    dataset_name: NMNIST
+    batch_size: 200
+    label_perm: false
+    use_DoG: false
+    DoG_settings: {}
+    cache_transforms: false
+    cache_dtype: null
+    event_frame_settings:
+      temporal_bins: 20
+      representation: binary
+      spatial_downsample: 1
+      first_saccade_only: false
+  training_settings:
+    max_epoch: 8
+    min_epoch: 0
+    sleep_freq: 99999
+    evaluate_freq: 2
+    STDP_interval: 1
+    stdp_update_mode: two_pass_decision_contingent
+    simulation_forward_mode: streaming
+    save_best_model: false
+    save_final_model: false
+    evaluation_level: 3
+    evaluation_phases:
+    - valid
+    - test
+    final_evaluation_phases:
+    - valid
+    - test
+    training_schedule:
+      enabled: true
+      stages:
+      - start_epoch: 2
+        frozen_cortex_ids:
+        - A-1
+    diagnostic_settings:
+      readout: false
+      ablation_chart: false
+      singular_value_spectrum: false
+      top_maps_plot: false
+      confusion_matrix: true
+      cortex_statistics: true
+      threshold_distribution: true
+      sample_activity_images: false
+      temporal_sample_metrics: true
+      sample_activity_phases:
+      - valid
+      - test
+      hinge_temporal_metrics: true
+      hinge_temporal_phases:
+      - valid
+      - test
+      per_neuron_activity: true
+      per_neuron_activity_phases:
+      - valid
+      - test
+      per_neuron_activity_max_batches: 30
+      gpu_usage: true
+      model_shape: false
+      kernel_heatmaps: false
+      readout_fusion: false
+      readout_error_overlap: false
+      training_invariant_audit:
+        cortex_ids:
+        - A-1
+        - A
+        root_cortex_id: A
+        audit_root_direct: true
+        audit_root_branch: false
+      normalization_mechanism_artifacts: true
+      normalization_mechanism_trajectory_epochs:
+      - 8
+      normalization_mechanism_trajectory_phases:
+      - test
+      normalization_mechanism_artifact_micro_batch_size: 20
+      normalization_mechanism_save_full_weight: true
+      normalization_mechanism_full_weight_epochs:
+      - 8
+    readout_params:
+      weight_decay: 0.0001
+      optimizer: lbfgs
+      max_iter: 200
+      lr: 0.001
+      epochs: 0
+    evaluation_micro_batch_size: 200
+  model:
+    target_mean_earliness: 0.08
+    cortex_spec:
+      PCA_cortex_settings:
+        PCA_settings:
+          leave_out_num: 2
+          method: PCA
+          normalizing: true
+          remained_variance: 1
+          transpose: false
+        new_cortex_split_ratio: 1
+        refund_with_amplifier: true
+        regularize_afterward: false
+        split_only_tail: true
+        weight_refund: true
+      STDP_cortex_settings:
+        init_D_P_rate_ratio: 0.7
+        init_P_rate: 1.0e-06
+        learning_rate_decrease_base: 0
+      base_cortex_settings:
+        amplifier_settings:
+          log_amplifier_delta: 6.25e-06
+          target_mean_first_spike_earliness:
+            delay_factor: 0.5
+            min_target_earliness: 0.02
+            max_target_earliness: 0.6
+          lower_bound: 1.0e-05
+          upper_bound: 999999999
+        kernel_settings:
+          init_mean: 0.8
+          init_std: 0.05
+          minimal_weight: 5.5e-05
+          no_skip_links: true
+          non_negative_weights: false
+          normalize_settings:
+            dim_0_freq: 2
+            dim_1_freq: 2
+            freq_diff: 0
+            norm_p: 1
+            out_weight_len: 1
+            use_shape_ratio: true
+            dim_1_mode: per_sender
+            dim_0_freq_by_cortex:
+              A: 2
+              A-1: 1
+            dim_1_freq_by_cortex:
+              A: 2
+              A-1: 0
+        lateral_inhibition:
+          factor: 30.0
+          power: 1.0
+        top_k: 4
+      neuron_vectors_spec:
+        potential_decay_rate: 1.0
+        reset_state: 0
+        resting_length: 999
+        threshold_settings:
+          homeostasis_ema_decay: 0.0
+          log_thresholds_delta: 0.00125
+          lower_bound: 1.0
+          upper_bound: 100.0
+          initial_threshold: 10.0
+          target_mean_first_spike_factor: 0.08
+      spike_trace_settings:
+        balanced_spike_trace: true
+        spike_decay_rate: 0.97
+    image_encoder_spec:
+      encoder: direct_event_bins
+      simulation_time: 20
+      temporal_bins: 20
+      channels_per_bin: 2
+      binarize: true
+    init_cortex:
+      fix_shape: true
+      input_channel: 2
+      kernel_size: 34
+      output_channel: 10
+      stride: 4
+      init_amplifier: 10
+      competition_group_N: 45
+      pooling_settings:
+        mode: max
+        kernel_size: global
+      subcortexs:
+      - fix_shape: true
+        input_channel: 2
+        kernel_size: 9
+        output_channel: 330
+        stride: 2
+        init_amplifier: 10
+        pooling_settings:
+          mode: max
+          kernel_size: 2
+    remember_settings:
+      STDP_mechanism:
+        label_usage: signed_ltp
+        label_propagating: false
+        hinge_softmax_label:
+          margin: 0.35
+          label_scope: class_aggregate
+          positive_scale: 32.0
+          negative_scale: 100.0
+          wrong_background_value: 0.0
+          softmax_temperature: 0.25
+          correct_background_value: 0.0
+      self_cleaning_after_STDP: false
+  sub_exp_name: nmnist_simultaneous_half
+  seed:
+  - 35100
+  - 35101
+  - 35102
+  - 35103
+  description:
+    subexp: Post then pre every other batch; output-only schedule unless explicitly
+      hidden_only/all_layers; matched dataset base.
+- data:
+    dataset_name: NMNIST
+    batch_size: 200
+    label_perm: false
+    use_DoG: false
+    DoG_settings: {}
+    cache_transforms: false
+    cache_dtype: null
+    event_frame_settings:
+      temporal_bins: 20
+      representation: binary
+      spatial_downsample: 1
+      first_saccade_only: false
+  training_settings:
+    max_epoch: 8
+    min_epoch: 0
+    sleep_freq: 99999
+    evaluate_freq: 2
+    STDP_interval: 1
+    stdp_update_mode: two_pass_decision_contingent
+    simulation_forward_mode: streaming
+    save_best_model: false
+    save_final_model: false
+    evaluation_level: 3
+    evaluation_phases:
+    - valid
+    - test
+    final_evaluation_phases:
+    - valid
+    - test
+    training_schedule:
+      enabled: true
+      stages:
+      - start_epoch: 2
+        frozen_cortex_ids:
+        - A-1
+    diagnostic_settings:
+      readout: false
+      ablation_chart: false
+      singular_value_spectrum: false
+      top_maps_plot: false
+      confusion_matrix: true
+      cortex_statistics: true
+      threshold_distribution: true
+      sample_activity_images: false
+      temporal_sample_metrics: true
+      sample_activity_phases:
+      - valid
+      - test
+      hinge_temporal_metrics: true
+      hinge_temporal_phases:
+      - valid
+      - test
+      per_neuron_activity: true
+      per_neuron_activity_phases:
+      - valid
+      - test
+      per_neuron_activity_max_batches: 30
+      gpu_usage: true
+      model_shape: false
+      kernel_heatmaps: false
+      readout_fusion: false
+      readout_error_overlap: false
+      training_invariant_audit:
+        cortex_ids:
+        - A-1
+        - A
+        root_cortex_id: A
+        audit_root_direct: true
+        audit_root_branch: false
+      normalization_mechanism_artifacts: true
+      normalization_mechanism_trajectory_epochs:
+      - 8
+      normalization_mechanism_trajectory_phases:
+      - test
+      normalization_mechanism_artifact_micro_batch_size: 20
+      normalization_mechanism_save_full_weight: true
+      normalization_mechanism_full_weight_epochs:
+      - 8
+    readout_params:
+      weight_decay: 0.0001
+      optimizer: lbfgs
+      max_iter: 200
+      lr: 0.001
+      epochs: 0
+    evaluation_micro_batch_size: 200
+  model:
+    target_mean_earliness: 0.08
+    cortex_spec:
+      PCA_cortex_settings:
+        PCA_settings:
+          leave_out_num: 2
+          method: PCA
+          normalizing: true
+          remained_variance: 1
+          transpose: false
+        new_cortex_split_ratio: 1
+        refund_with_amplifier: true
+        regularize_afterward: false
+        split_only_tail: true
+        weight_refund: true
+      STDP_cortex_settings:
+        init_D_P_rate_ratio: 0.7
+        init_P_rate: 1.0e-06
+        learning_rate_decrease_base: 0
+      base_cortex_settings:
+        amplifier_settings:
+          log_amplifier_delta: 6.25e-06
+          target_mean_first_spike_earliness:
+            delay_factor: 0.5
+            min_target_earliness: 0.02
+            max_target_earliness: 0.6
+          lower_bound: 1.0e-05
+          upper_bound: 999999999
+        kernel_settings:
+          init_mean: 0.8
+          init_std: 0.05
+          minimal_weight: 5.5e-05
+          no_skip_links: true
+          non_negative_weights: false
+          normalize_settings:
+            dim_0_freq: 1
+            dim_1_freq: 0
+            freq_diff: 1
+            norm_p: 1
+            out_weight_len: 1
+            use_shape_ratio: true
+            dim_1_mode: per_sender
+            dim_0_freq_by_cortex:
+              A: 1
+              A-1: 2
+            dim_1_freq_by_cortex:
+              A: 0
+              A-1: 2
+        lateral_inhibition:
+          factor: 30.0
+          power: 1.0
+        top_k: 4
+      neuron_vectors_spec:
+        potential_decay_rate: 1.0
+        reset_state: 0
+        resting_length: 999
+        threshold_settings:
+          homeostasis_ema_decay: 0.0
+          log_thresholds_delta: 0.00125
+          lower_bound: 1.0
+          upper_bound: 100.0
+          initial_threshold: 10.0
+          target_mean_first_spike_factor: 0.08
+      spike_trace_settings:
+        balanced_spike_trace: true
+        spike_decay_rate: 0.97
+    image_encoder_spec:
+      encoder: direct_event_bins
+      simulation_time: 20
+      temporal_bins: 20
+      channels_per_bin: 2
+      binarize: true
+    init_cortex:
+      fix_shape: true
+      input_channel: 2
+      kernel_size: 34
+      output_channel: 10
+      stride: 4
+      init_amplifier: 10
+      competition_group_N: 45
+      pooling_settings:
+        mode: max
+        kernel_size: global
+      subcortexs:
+      - fix_shape: true
+        input_channel: 2
+        kernel_size: 9
+        output_channel: 330
+        stride: 2
+        init_amplifier: 10
+        pooling_settings:
+          mode: max
+          kernel_size: 2
+    remember_settings:
+      STDP_mechanism:
+        label_usage: signed_ltp
+        label_propagating: false
+        hinge_softmax_label:
+          margin: 0.35
+          label_scope: class_aggregate
+          positive_scale: 32.0
+          negative_scale: 100.0
+          wrong_background_value: 0.0
+          softmax_temperature: 0.25
+          correct_background_value: 0.0
+      self_cleaning_after_STDP: false
+  sub_exp_name: nmnist_hidden_only
+  seed:
+  - 35100
+  - 35101
+  - 35102
+  - 35103
+  description:
+    subexp: Doubly hidden only; output-only schedule unless explicitly hidden_only/all_layers;
+      matched dataset base.
+- data:
+    dataset_name: NMNIST
+    batch_size: 200
+    label_perm: false
+    use_DoG: false
+    DoG_settings: {}
+    cache_transforms: false
+    cache_dtype: null
+    event_frame_settings:
+      temporal_bins: 20
+      representation: binary
+      spatial_downsample: 1
+      first_saccade_only: false
+  training_settings:
+    max_epoch: 8
+    min_epoch: 0
+    sleep_freq: 99999
+    evaluate_freq: 2
+    STDP_interval: 1
+    stdp_update_mode: two_pass_decision_contingent
+    simulation_forward_mode: streaming
+    save_best_model: false
+    save_final_model: false
+    evaluation_level: 3
+    evaluation_phases:
+    - valid
+    - test
+    final_evaluation_phases:
+    - valid
+    - test
+    training_schedule:
+      enabled: true
+      stages:
+      - start_epoch: 2
+        frozen_cortex_ids:
+        - A-1
+    diagnostic_settings:
+      readout: false
+      ablation_chart: false
+      singular_value_spectrum: false
+      top_maps_plot: false
+      confusion_matrix: true
+      cortex_statistics: true
+      threshold_distribution: true
+      sample_activity_images: false
+      temporal_sample_metrics: true
+      sample_activity_phases:
+      - valid
+      - test
+      hinge_temporal_metrics: true
+      hinge_temporal_phases:
+      - valid
+      - test
+      per_neuron_activity: true
+      per_neuron_activity_phases:
+      - valid
+      - test
+      per_neuron_activity_max_batches: 30
+      gpu_usage: true
+      model_shape: false
+      kernel_heatmaps: false
+      readout_fusion: false
+      readout_error_overlap: false
+      training_invariant_audit:
+        cortex_ids:
+        - A-1
+        - A
+        root_cortex_id: A
+        audit_root_direct: true
+        audit_root_branch: false
+      normalization_mechanism_artifacts: true
+      normalization_mechanism_trajectory_epochs:
+      - 8
+      normalization_mechanism_trajectory_phases:
+      - test
+      normalization_mechanism_artifact_micro_batch_size: 20
+      normalization_mechanism_save_full_weight: true
+      normalization_mechanism_full_weight_epochs:
+      - 8
+    readout_params:
+      weight_decay: 0.0001
+      optimizer: lbfgs
+      max_iter: 200
+      lr: 0.001
+      epochs: 0
+    evaluation_micro_batch_size: 200
+  model:
+    target_mean_earliness: 0.08
+    cortex_spec:
+      PCA_cortex_settings:
+        PCA_settings:
+          leave_out_num: 2
+          method: PCA
+          normalizing: true
+          remained_variance: 1
+          transpose: false
+        new_cortex_split_ratio: 1
+        refund_with_amplifier: true
+        regularize_afterward: false
+        split_only_tail: true
+        weight_refund: true
+      STDP_cortex_settings:
+        init_D_P_rate_ratio: 0.7
+        init_P_rate: 1.0e-06
+        learning_rate_decrease_base: 0
+      base_cortex_settings:
+        amplifier_settings:
+          log_amplifier_delta: 6.25e-06
+          target_mean_first_spike_earliness:
+            delay_factor: 0.5
+            min_target_earliness: 0.02
+            max_target_earliness: 0.6
+          lower_bound: 1.0e-05
+          upper_bound: 999999999
+        kernel_settings:
+          init_mean: 0.8
+          init_std: 0.05
+          minimal_weight: 5.5e-05
+          no_skip_links: true
+          non_negative_weights: false
+          normalize_settings:
+            dim_0_freq: 2
+            dim_1_freq: 2
+            freq_diff: 1
+            norm_p: 1
+            out_weight_len: 1
+            use_shape_ratio: true
+            dim_1_mode: per_sender
+            dim_0_freq_by_cortex:
+              A: 2
+              A-1: 2
+            dim_1_freq_by_cortex:
+              A: 2
+              A-1: 2
+        lateral_inhibition:
+          factor: 30.0
+          power: 1.0
+        top_k: 4
+      neuron_vectors_spec:
+        potential_decay_rate: 1.0
+        reset_state: 0
+        resting_length: 999
+        threshold_settings:
+          homeostasis_ema_decay: 0.0
+          log_thresholds_delta: 0.00125
+          lower_bound: 1.0
+          upper_bound: 100.0
+          initial_threshold: 10.0
+          target_mean_first_spike_factor: 0.08
+      spike_trace_settings:
+        balanced_spike_trace: true
+        spike_decay_rate: 0.97
+    image_encoder_spec:
+      encoder: direct_event_bins
+      simulation_time: 20
+      temporal_bins: 20
+      channels_per_bin: 2
+      binarize: true
+    init_cortex:
+      fix_shape: true
+      input_channel: 2
+      kernel_size: 34
+      output_channel: 10
+      stride: 4
+      init_amplifier: 10
+      competition_group_N: 45
+      pooling_settings:
+        mode: max
+        kernel_size: global
+      subcortexs:
+      - fix_shape: true
+        input_channel: 2
+        kernel_size: 9
+        output_channel: 330
+        stride: 2
+        init_amplifier: 10
+        pooling_settings:
+          mode: max
+          kernel_size: 2
+    remember_settings:
+      STDP_mechanism:
+        label_usage: signed_ltp
+        label_propagating: false
+        hinge_softmax_label:
+          margin: 0.35
+          label_scope: class_aggregate
+          positive_scale: 32.0
+          negative_scale: 100.0
+          wrong_background_value: 0.0
+          softmax_temperature: 0.25
+          correct_background_value: 0.0
+      self_cleaning_after_STDP: false
+  sub_exp_name: nmnist_all_layers
+  seed:
+  - 35100
+  - 35101
+  - 35102
+  - 35103
+  description:
+    subexp: Doubly all layers; output-only schedule unless explicitly hidden_only/all_layers;
+      matched dataset base.
