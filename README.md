@@ -41,6 +41,22 @@ The loaders download MNIST and N-MNIST on first training use, into `data/`.
 
 ## Experiments and outputs
 
+### Output locations
+
+Each run keeps its complete TensorBoard log and mechanism artifacts under its
+experiment directory:
+
+```text
+logs/paper_doubly_mnist_v3/{run-name}/
+logs/paper_doubly_nmnist_v3/{run-name}/
+logs/paper_doubly_sender/{run-name}/
+```
+
+The sender experiment also saves the shared-prefix and final checkpoints under
+`saved_models/paper_doubly_sender/`. MNIST and N-MNIST do not save model
+checkpoints. After all 92 runs finish, the analysis step writes the paper-ready
+sample outputs directly to `result/`.
+
 ### Experiment files
 
 | File | Dataset | Seeds | Training | Outputs |
@@ -118,8 +134,41 @@ fixed-zero direct block and upstream A-1 activity are excluded.
 Figure 3 measures conditional decision dependence. Removal sets may differ between
 models, and matched support does not imply matched timing.
 
-Full 92-run training has not yet been executed for this release. CPU synthetic
-checks cover model construction, checkpoint continuation, diagnostics and output generation.
+The formal 92-run Prefect reproduction was dispatched on 2026-09-19. Until it
+finishes, CPU synthetic checks cover model construction, checkpoint continuation,
+diagnostics and output generation.
+
+## Results
+
+The full 92-run Prefect reproduction is currently in progress. After completion,
+the verified outputs will be committed here as reproducible samples; no
+provisional or synthetic values are shown below.
+
+### Figures
+
+| Figure | Content | Sample |
+|---|---|---|
+| Figure 1 | Receiver activity and output-layer singular values | `result/figure1.pdf` (pending) |
+| Figure 2 | Correct and wrong evidence earliness | `result/figure2.pdf` (pending) |
+| Figure 3 | Sender removal and attenuation | `result/figure3.pdf` (pending) |
+
+### Tables
+
+#### Table 1 — Normalization schedule
+
+`result/table1.csv` (pending)
+
+#### Table 2 — Layer placement
+
+`result/table2.csv` (pending)
+
+#### Table 3 — Activity and spectrum summary
+
+`result/table3.csv` (pending)
+
+#### Table 4 — N-MNIST decision and timing summary
+
+`result/table4.csv` (pending)
 
 ## License
 

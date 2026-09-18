@@ -1,7 +1,14 @@
 data/
 logs/
 saved_models/
-result/
+result/*
+!result/figure1.pdf
+!result/figure2.pdf
+!result/figure3.pdf
+!result/table1.csv
+!result/table2.csv
+!result/table3.csv
+!result/table4.csv
 tmp/
 __pycache__/
 *.py[cod]
