@@ -23,7 +23,9 @@ class Writer:
 
 def main():
     torch.set_num_threads(2)
-    out=ROOT/'tmp/doubly_reproduction/artifact_smoke';out.mkdir(parents=True,exist_ok=True)
+    out=ROOT/'tmp/doubly_reproduction/artifact_smoke'
+    if out.exists():shutil.rmtree(out)
+    out.mkdir(parents=True,exist_ok=True)
     report={'synthetic_only':True,'datasets':{}}
     for ds in ['mnist','nmnist']:
         rows=settings(ds);r=rows[0]
@@ -79,12 +81,12 @@ def main():
             (dest/'manifest.json').write_text(json.dumps(info))
         for variant,group in source.groupby('variant'):
             sender_rows.append(dict(arm=arm,variant=variant,accuracy_percent_mean=100*group.correct.mean()))
-    sender_dir=out/'chapter/sender';sender_dir.mkdir(exist_ok=True)
-    build_sender(sender_dir,logs=sender_logs)
-    assert len(pd.read_csv(sender_dir/'raw.csv'))==6400
-    assert len(pd.read_csv(sender_dir/'per_seed.csv'))==32
-    assert len(pd.read_csv(sender_dir/'summary.csv'))==8
-    sender_column(sender_dir,out/'chapter')
+    sender_summary=build_sender(logs=sender_logs)
+    assert len(sender_summary)==8
+    sender_column(sender_summary,out/'chapter')
+    expected={f'figure{i}.pdf' for i in range(1,4)}|{f'table{i}.csv' for i in range(1,5)}
+    actual={path.name for path in (out/'chapter').iterdir() if path.is_file()}
+    assert actual==expected,(sorted(expected),sorted(actual))
     report['main_table_count']=4;report['figure_count']=3
     (out/'report.json').write_text(json.dumps(report,indent=2));print(json.dumps(report,indent=2))
 if __name__=='__main__':main()

@@ -1,7 +1,6 @@
 """Chapter tables, figures and sender summaries from completed experiment runs."""
 import hashlib
 import json
-import re
 import numpy as np
 import pandas as pd
 from scipy.stats import t
@@ -20,13 +19,8 @@ def validate_run_manifest(info):
         raise ValueError('Unexpected sender sampling/removal settings in run manifest.')
 
 
-def build_sender(out, logs=None):
+def build_sender(logs=None):
     logs = ROOT/'logs' if logs is None else logs
-    out = out.resolve()
-    if not out.is_relative_to(ROOT):
-        raise ValueError('Result directory must be inside this repository')
-    out.mkdir(parents=True, exist_ok=True)
-    manifest = []
     frames = []
     for arm in ['adaptive_post', 'adaptive_pre']:
         for seed in range(40500, 40504):
@@ -35,11 +29,9 @@ def build_sender(out, logs=None):
             info_path=src.with_name('manifest.json')
             info=json.loads(info_path.read_text(encoding='utf-8'))
             validate_run_manifest(info)
-            manifest.append({'path':str(info_path),'sha256':hashlib.sha256(info_path.read_bytes()).hexdigest()})
             frame = pd.read_csv(src)
             frame = frame.assign(arm=arm, seed=seed, epoch=20, phase='valid', support_normalization='none')
             frames.append(frame)
-            manifest.append({'path': str(src), 'sha256': hashlib.sha256(src.read_bytes()).hexdigest()})
     raw = pd.concat(frames, ignore_index=True)
     raw = raw[(raw.epoch == 20) & (raw.phase == 'valid') &
               (raw.support_normalization == 'none') & raw.variant.isin(VARIANTS)].copy()
@@ -69,12 +61,9 @@ def build_sender(out, logs=None):
         summary.append(dict(arm=arm,epoch=20,phase='valid',support_normalization='none',variant=variant,n_training_seeds=4,
             accuracy_percent_mean=m,accuracy_percent_ci95_low=m-ci,accuracy_percent_ci95_high=m+ci,
             no_decision_percent_mean=ndm,no_decision_percent_ci95_low=ndm-ndci,no_decision_percent_ci95_high=ndm+ndci))
-    raw.to_csv(out/'raw.csv',index=False)
-    per_seed.to_csv(out/'per_seed.csv',index=False)
-    summary=pd.DataFrame(summary);summary.to_csv(out/'summary.csv',index=False)
-    (out/'sources.json').write_text(json.dumps(manifest,indent=2))
+    summary=pd.DataFrame(summary)
     print(summary.pivot(index='variant',columns='arm',values='accuracy_percent_mean').to_string())
-    print('Saved:',out)
+    return summary
 
 
 
@@ -101,7 +90,7 @@ def derive(decisions,activity,weight,singular_values=None):
     return {k:float(v) for k,v in metrics.items()},rates,sv
 
 def build(out,logs):
-    spec=json.loads((HERE/'coverage.json').read_text());sources=[];records=[];curves={};spectra={}
+    spec=json.loads((HERE/'coverage.json').read_text());records=[];curves={};spectra={}
     for dataset,ds in spec['datasets'].items():
         for row in settings(dataset):
             condition=row['sub_exp_name'].rsplit('_seed',1)[0][len(dataset)+1:]
@@ -114,14 +103,13 @@ def build(out,logs):
             arrays=[]
             for path in paths:
                 with np.load(path,allow_pickle=False) as f:arrays.append(dict(f))
-                sources.append(dict(path=str(path),sha256=hashlib.sha256(path.read_bytes()).hexdigest()))
-            key=sources[-1]['sha256']
+            key=hashlib.sha256(paths[-1].read_bytes()).hexdigest()
             values,rates,sv=derive(*arrays,singular_values=spectra.get(key))
             spectra[key]=sv
             records.append(dict(dataset=dataset,condition=condition,seed=row['seed'],epoch=e,phase='test',**values))
             curves.setdefault((dataset,condition),[]).append((rates,sv))
     out.mkdir(parents=True,exist_ok=True)
-    frame=pd.DataFrame(records);frame.to_csv(out/'all_metrics_per_seed.csv',index=False)
+    frame=pd.DataFrame(records)
     grouped=frame.groupby(['dataset','condition']);mean=grouped.mean(numeric_only=True);sd=grouped.std(numeric_only=True,ddof=1)
     labels={c['id']:c['label'] for c in spec['conditions']};schedule=[c['id'] for c in spec['conditions'][:8]];tables={}
     for number,conditions in [(1,schedule),(2,LAYERS)]:
@@ -130,12 +118,12 @@ def build(out,logs):
             r={'method':labels[c]}
             if number==1:r['schedule']=next(x['schedule'] for x in spec['conditions'] if x['id']==c)
             for ds in ['mnist','nmnist']:
-                v=mean.loc[(ds,c),'accuracy'];r[ds]=f'{v:.3f} 卤 {sd.loc[(ds,c),"accuracy"]:.3f}'
+                v=mean.loc[(ds,c),'accuracy'];r[ds]=f'{v:.3f} ± {sd.loc[(ds,c),"accuracy"]:.3f}'
                 if number==2 and c!='post_every':r[ds]+=f' ({v-mean.loc[(ds,"post_every"),"accuracy"]:+.3f})'
             rows.append(r)
         tables[number]=pd.DataFrame(rows)
     metrics=['effective_rank','participation_ratio','dead_percent','activity_variance','mean_spikes']
-    tables[3]=pd.DataFrame([{'method':labels[c],**{k:f'{mean.loc[("mnist",c),k]:.4f} 卤 {sd.loc[("mnist",c),k]:.4f}' for k in metrics}} for c in STRUCTURE])
+    tables[3]=pd.DataFrame([{'method':labels[c],**{k:f'{mean.loc[("mnist",c),k]:.4f} ± {sd.loc[("mnist",c),k]:.4f}' for k in metrics}} for c in STRUCTURE])
     rows=[]
     for k in ['accuracy','no_decision','correct_earliness','wrong_earliness','gap']:
         a=mean.loc[('nmnist','post_every'),k];b=mean.loc[('nmnist','alternating'),k];suffix='' if k=='accuracy' else '%'
@@ -143,35 +131,16 @@ def build(out,logs):
     tables[4]=pd.DataFrame(rows)
     for num,table in tables.items():
         table.to_csv(out/f'table{num}.csv',index=False)
-        rendered=table.copy()
-        for col in rendered:
-            rendered[col]=rendered[col].map(lambda v:str(v).replace('_',r'\_').replace('%',r'\%').replace('卤',r'$\pm$'))
-        for ds in ['mnist','nmnist']:
-            if num==1:
-                best=max(mean.loc[(ds,c),'accuracy'] for c in schedule)
-                for i,c in enumerate(schedule):
-                    if mean.loc[(ds,c),'accuracy']==best:rendered.loc[i,ds]=r'\textbf{'+rendered.loc[i,ds]+'}'
-            elif num==2:
-                for i,c in enumerate(LAYERS[1:],1):
-                    delta=mean.loc[(ds,c),'accuracy']-mean.loc[(ds,'post_every'),'accuracy']
-                    color='green!45!black' if delta>0 else 'red!70!black' if delta<0 else 'black'
-                    rendered.loc[i,ds]=re.sub(r'(\([+-][0-9.]+\))',lambda m:r'\textcolor{'+color+'}{'+m[0]+'}',rendered.loc[i,ds])
-        tex=rendered.to_latex(index=False,escape=False)
-        tex=r'\resizebox{\columnwidth}{!}{%'+ '\n'+tex+'}\n'
-        (out/f'table{num}.tex').write_text(tex,encoding='utf8')
     plt.rcParams.update({'font.family':'serif','font.size':8,'pdf.fonttype':42})
-    fig,axes=plt.subplots(2,1,figsize=(3.4,4.2));curve_rows=[]
+    fig,axes=plt.subplots(2,1,figsize=(3.4,4.2))
     for c,color in zip(STRUCTURE,[COLORS[0],COLORS[2],COLORS[3],COLORS[1],COLORS[4]]):
         pairs=curves[('mnist',c)]
-        for seed,(rates,sv) in zip(spec['datasets']['mnist']['seeds'],pairs):
-            for k,values in [('activity',np.sort(rates)[::-1]),('singular_value',sv)]:
-                curve_rows.extend(dict(condition=c,seed=seed,quantity=k,rank=i+1,value=float(v)) for i,v in enumerate(values))
         for ax,index in zip(axes,[0,1]):
             data=np.stack([np.sort(p[index])[::-1] for p in pairs])
             ax.plot(np.arange(1,data.shape[1]+1),data.mean(0),label=labels[c],color=color)
     axes[0].set(xlabel='Receiver rank',ylabel='First-spike probability');axes[0].legend(fontsize=6)
     axes[1].set(xlabel='Singular-value rank',ylabel='Singular value');axes[1].set_yscale('symlog',linthresh=1e-4)
-    fig.tight_layout();save(fig,out/'figure1');pd.DataFrame(curve_rows).to_csv(out/'figure1_per_seed.csv',index=False)
+    fig.tight_layout();save(fig,out/'figure1')
     fig,axes=plt.subplots(1,2,figsize=(3.4,2.35))
     limits=[(.35,.55),(.05,.25)];ticksets=[[.4,.5],[.1,.2]]
     evidence=[[mean.loc[('nmnist',c),k]/100 for c in ['post_every','alternating']] for k in ['correct_earliness','wrong_earliness']]
@@ -179,7 +148,6 @@ def build(out,logs):
         span=max(.2,max(max(v)-min(v) for v in evidence)+.08)
         limits=[(min(v)-.04,min(v)-.04+span) for v in evidence]
         ticksets=[np.linspace(lo,hi,3) for lo,hi in limits]
-    (out/'figure2_axes.json').write_text(json.dumps({'limits':limits,'equal_span':True,'changed_from_preview':limits!=[(.35,.55),(.05,.25)]},indent=2))
     for ax,k,ylim,ticks in zip(axes,['correct_earliness','wrong_earliness'],limits,ticksets):
         v=[mean.loc[('nmnist',c),k]/100 for c in ['post_every','alternating']]
         ax.bar([0,1],v,color=COLORS[:2],width=.55)
@@ -187,19 +155,13 @@ def build(out,logs):
         ax.tick_params(axis='x',labelrotation=30)
         for x,y in enumerate(v):ax.annotate(f'{y:.4f}',(x,y),xytext=(0,3),textcoords='offset points',ha='center',fontsize=7)
     fig.tight_layout();save(fig,out/'figure2')
-    (out/'sources.json').write_text(json.dumps(sources,indent=2))
-    def markdown(table):
-        rows=[list(table.columns),['---']*len(table.columns),*table.astype(str).values.tolist()]
-        return '\n'.join('| '+' | '.join(row)+' |' for row in rows)
-    (out/'tables.md').write_text('\n\n'.join(f'Table {i}\n\n'+markdown(t) for i,t in tables.items()),encoding='utf8')
     return frame
 
 def save(fig,path):
-    for ext in ['pdf','svg','png']:fig.savefig(path.with_suffix('.'+ext),bbox_inches='tight',dpi=220)
+    fig.savefig(path.with_suffix('.pdf'),bbox_inches='tight')
     plt.close(fig)
 
-def sender_column(source,out):
-    table=pd.read_csv(source/'summary.csv')
+def sender_column(table,out):
     fig,axes=plt.subplots(2,1,figsize=(3.4,4.1))
     variants=['random_support','equal_drive_attenuation','top_support']
     for ax,arm,title,color in zip(axes,['adaptive_post','adaptive_pre'],['Post-only','Doubly'],COLORS):
@@ -215,9 +177,10 @@ def sender_column(source,out):
 
 def generate_results(sender_only=False):
     out=ROOT/'result'
+    if not sender_only and out.exists():
+        import shutil
+        shutil.rmtree(out)
     out.mkdir(parents=True,exist_ok=True)
-    complete=out/'COMPLETE.json'
-    if complete.exists():complete.unlink()
     if not sender_only:
         build(out,ROOT/'logs')
     for row in settings('sender'):
@@ -225,8 +188,11 @@ def generate_results(sender_only=False):
         expected=hashlib.sha256(json.dumps(row,sort_keys=True).encode()).hexdigest()
         if json.loads(marker.read_text())['settings_sha256']!=expected:
             raise ValueError(f'Sender settings mismatch: {marker}')
-    build_sender(out/'sender')
-    sender_column(out/'sender',out)
+    sender_summary=build_sender()
+    sender_column(sender_summary,out)
     if not sender_only:
-        complete.write_text(json.dumps({'tables':4,'figures':3,'historical_fallback':False},indent=2))
+        expected={f'figure{i}.pdf' for i in range(1,4)}|{f'table{i}.csv' for i in range(1,5)}
+        actual={path.name for path in out.iterdir() if path.is_file()}
+        if actual != expected:
+            raise RuntimeError(f'Unexpected result files: expected {sorted(expected)}, got {sorted(actual)}')
     print('Results:',out)

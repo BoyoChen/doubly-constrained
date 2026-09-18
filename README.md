@@ -18,7 +18,7 @@ python -m pip install -r requirements.txt
 ```bash
 cd code
 
-# Train all three experiments and generate all four tables and three figures.
+# Train all three experiments, then generate three figure PDFs and four table CSVs.
 python main.py experiments
 
 # Or run one experiment file.
@@ -83,8 +83,8 @@ are indexed by learning updates, not epochs.
 | Figure 2, Table 4 | Correct/wrong earliness, gap, no-decision and accuracy | N-MNIST test set |
 | Figure 3 | Sender removal and attenuation | 200 validation samples per seed |
 
-Results are saved directly to `result/` as CSV, LaTeX,
-PDF, SVG and PNG.
+Results are saved directly to `result/` as exactly seven files:
+`figure1.pdf`--`figure3.pdf` and `table1.csv`--`table4.csv`.
 
 ### Reported metrics
 
