@@ -56,28 +56,28 @@
     "mnist": {
       "file": "01_mnist.yaml",
       "experiment_name": "paper_doubly_mnist_v3",
-      "base_source": "ex781.yaml",
+      "base_source": "Temporal-Margin ex767/ex781 runtime-compatible MNIST substrate",
       "seeds": [
         34000,
         34001,
         34002,
         34003
       ],
-      "final_epoch": 100,
+      "final_epoch": 20,
       "runs": 40,
       "phase": "test"
     },
     "nmnist": {
       "file": "02_nmnist_t20.yaml",
       "experiment_name": "paper_doubly_nmnist_v3",
-      "base_source": "ex786.yaml",
+      "base_source": "Temporal-Margin ex788.yaml, fixed-amplifier-10 T=20 row",
       "seeds": [
         35100,
         35101,
         35102,
         35103
       ],
-      "final_epoch": 8,
+      "final_epoch": 20,
       "runs": 40,
       "phase": "test"
     }

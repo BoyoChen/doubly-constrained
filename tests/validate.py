@@ -33,11 +33,18 @@ def main():
                 if group=='nmnist':
                     assert r['data']['event_frame_settings']['temporal_bins']==20
                     assert r['model']['image_encoder_spec']['encoder']=='direct_event_bins'
+                    assert r['model']['cortex_spec']['base_cortex_settings']['amplifier_settings']['log_amplifier_delta']==0.0
+                else:
+                    amp=r['model']['cortex_spec']['base_cortex_settings']['amplifier_settings']
+                    threshold=r['model']['cortex_spec']['neuron_vectors_spec']['threshold_settings']
+                    assert amp['log_amplifier_delta_by_cortex']['A']==1.25e-6
+                    assert amp['target_mean_first_spike_earliness_by_cortex']['A']==.38
+                    assert threshold['target_mean_first_spike_factor_by_cortex']['A']==.075
             elif 'load_from' in r['model']:
                 t=r['training_settings'];s=t['diagnostic_settings']['sender_decision_study']
-                assert t['max_epoch']==9 and t['epoch_offset']==1
+                assert t['max_epoch']==19 and t['epoch_offset']==1
                 assert s['support_normalization']=='none' and s['samples_per_class']==20
-                assert s['deletion_fraction']==.1 and 10 in s['epochs']
+                assert s['deletion_fraction']==.1 and 20 in s['epochs']
             base=r['sub_exp_name'].rsplit('_seed',1)[0]
             if a.construct_models and base not in seen and 'load_from' not in r['model']:
                 import torch

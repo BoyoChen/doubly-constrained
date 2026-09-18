@@ -15,7 +15,7 @@ sub_experiments:
       spatial_downsample: 1
       first_saccade_only: false
   training_settings:
-    max_epoch: 8
+    max_epoch: 20
     min_epoch: 0
     sleep_freq: 99999
     evaluate_freq: 2
@@ -73,13 +73,13 @@ sub_experiments:
         audit_root_branch: false
       normalization_mechanism_artifacts: true
       normalization_mechanism_trajectory_epochs:
-      - 8
+      - 20
       normalization_mechanism_trajectory_phases:
       - test
       normalization_mechanism_artifact_micro_batch_size: 20
       normalization_mechanism_save_full_weight: true
       normalization_mechanism_full_weight_epochs:
-      - 8
+      - 20
     readout_params:
       weight_decay: 0.0001
       optimizer: lbfgs
@@ -108,7 +108,7 @@ sub_experiments:
         learning_rate_decrease_base: 0
       base_cortex_settings:
         amplifier_settings:
-          log_amplifier_delta: 6.25e-06
+          log_amplifier_delta: 0.0
           target_mean_first_spike_earliness:
             delay_factor: 0.5
             min_target_earliness: 0.02
@@ -216,7 +216,7 @@ sub_experiments:
       spatial_downsample: 1
       first_saccade_only: false
   training_settings:
-    max_epoch: 8
+    max_epoch: 20
     min_epoch: 0
     sleep_freq: 99999
     evaluate_freq: 2
@@ -274,13 +274,13 @@ sub_experiments:
         audit_root_branch: false
       normalization_mechanism_artifacts: true
       normalization_mechanism_trajectory_epochs:
-      - 8
+      - 20
       normalization_mechanism_trajectory_phases:
       - test
       normalization_mechanism_artifact_micro_batch_size: 20
       normalization_mechanism_save_full_weight: true
       normalization_mechanism_full_weight_epochs:
-      - 8
+      - 20
     readout_params:
       weight_decay: 0.0001
       optimizer: lbfgs
@@ -309,7 +309,7 @@ sub_experiments:
         learning_rate_decrease_base: 0
       base_cortex_settings:
         amplifier_settings:
-          log_amplifier_delta: 6.25e-06
+          log_amplifier_delta: 0.0
           target_mean_first_spike_earliness:
             delay_factor: 0.5
             min_target_earliness: 0.02
@@ -417,7 +417,7 @@ sub_experiments:
       spatial_downsample: 1
       first_saccade_only: false
   training_settings:
-    max_epoch: 8
+    max_epoch: 20
     min_epoch: 0
     sleep_freq: 99999
     evaluate_freq: 2
@@ -475,13 +475,13 @@ sub_experiments:
         audit_root_branch: false
       normalization_mechanism_artifacts: true
       normalization_mechanism_trajectory_epochs:
-      - 8
+      - 20
       normalization_mechanism_trajectory_phases:
       - test
       normalization_mechanism_artifact_micro_batch_size: 20
       normalization_mechanism_save_full_weight: true
       normalization_mechanism_full_weight_epochs:
-      - 8
+      - 20
     readout_params:
       weight_decay: 0.0001
       optimizer: lbfgs
@@ -510,7 +510,7 @@ sub_experiments:
         learning_rate_decrease_base: 0
       base_cortex_settings:
         amplifier_settings:
-          log_amplifier_delta: 6.25e-06
+          log_amplifier_delta: 0.0
           target_mean_first_spike_earliness:
             delay_factor: 0.5
             min_target_earliness: 0.02
@@ -618,7 +618,7 @@ sub_experiments:
       spatial_downsample: 1
       first_saccade_only: false
   training_settings:
-    max_epoch: 8
+    max_epoch: 20
     min_epoch: 0
     sleep_freq: 99999
     evaluate_freq: 2
@@ -676,13 +676,13 @@ sub_experiments:
         audit_root_branch: false
       normalization_mechanism_artifacts: true
       normalization_mechanism_trajectory_epochs:
-      - 8
+      - 20
       normalization_mechanism_trajectory_phases:
       - test
       normalization_mechanism_artifact_micro_batch_size: 20
       normalization_mechanism_save_full_weight: true
       normalization_mechanism_full_weight_epochs:
-      - 8
+      - 20
     readout_params:
       weight_decay: 0.0001
       optimizer: lbfgs
@@ -711,7 +711,7 @@ sub_experiments:
         learning_rate_decrease_base: 0
       base_cortex_settings:
         amplifier_settings:
-          log_amplifier_delta: 6.25e-06
+          log_amplifier_delta: 0.0
           target_mean_first_spike_earliness:
             delay_factor: 0.5
             min_target_earliness: 0.02
@@ -819,7 +819,7 @@ sub_experiments:
       spatial_downsample: 1
       first_saccade_only: false
   training_settings:
-    max_epoch: 8
+    max_epoch: 20
     min_epoch: 0
     sleep_freq: 99999
     evaluate_freq: 2
@@ -877,13 +877,13 @@ sub_experiments:
         audit_root_branch: false
       normalization_mechanism_artifacts: true
       normalization_mechanism_trajectory_epochs:
-      - 8
+      - 20
       normalization_mechanism_trajectory_phases:
       - test
       normalization_mechanism_artifact_micro_batch_size: 20
       normalization_mechanism_save_full_weight: true
       normalization_mechanism_full_weight_epochs:
-      - 8
+      - 20
     readout_params:
       weight_decay: 0.0001
       optimizer: lbfgs
@@ -912,7 +912,7 @@ sub_experiments:
         learning_rate_decrease_base: 0
       base_cortex_settings:
         amplifier_settings:
-          log_amplifier_delta: 6.25e-06
+          log_amplifier_delta: 0.0
           target_mean_first_spike_earliness:
             delay_factor: 0.5
             min_target_earliness: 0.02
@@ -1020,7 +1020,7 @@ sub_experiments:
       spatial_downsample: 1
       first_saccade_only: false
   training_settings:
-    max_epoch: 8
+    max_epoch: 20
     min_epoch: 0
     sleep_freq: 99999
     evaluate_freq: 2
@@ -1078,13 +1078,13 @@ sub_experiments:
         audit_root_branch: false
       normalization_mechanism_artifacts: true
       normalization_mechanism_trajectory_epochs:
-      - 8
+      - 20
       normalization_mechanism_trajectory_phases:
       - test
       normalization_mechanism_artifact_micro_batch_size: 20
       normalization_mechanism_save_full_weight: true
       normalization_mechanism_full_weight_epochs:
-      - 8
+      - 20
     readout_params:
       weight_decay: 0.0001
       optimizer: lbfgs
@@ -1113,7 +1113,7 @@ sub_experiments:
         learning_rate_decrease_base: 0
       base_cortex_settings:
         amplifier_settings:
-          log_amplifier_delta: 6.25e-06
+          log_amplifier_delta: 0.0
           target_mean_first_spike_earliness:
             delay_factor: 0.5
             min_target_earliness: 0.02
@@ -1221,7 +1221,7 @@ sub_experiments:
       spatial_downsample: 1
       first_saccade_only: false
   training_settings:
-    max_epoch: 8
+    max_epoch: 20
     min_epoch: 0
     sleep_freq: 99999
     evaluate_freq: 2
@@ -1279,13 +1279,13 @@ sub_experiments:
         audit_root_branch: false
       normalization_mechanism_artifacts: true
       normalization_mechanism_trajectory_epochs:
-      - 8
+      - 20
       normalization_mechanism_trajectory_phases:
       - test
       normalization_mechanism_artifact_micro_batch_size: 20
       normalization_mechanism_save_full_weight: true
       normalization_mechanism_full_weight_epochs:
-      - 8
+      - 20
     readout_params:
       weight_decay: 0.0001
       optimizer: lbfgs
@@ -1314,7 +1314,7 @@ sub_experiments:
         learning_rate_decrease_base: 0
       base_cortex_settings:
         amplifier_settings:
-          log_amplifier_delta: 6.25e-06
+          log_amplifier_delta: 0.0
           target_mean_first_spike_earliness:
             delay_factor: 0.5
             min_target_earliness: 0.02
@@ -1422,7 +1422,7 @@ sub_experiments:
       spatial_downsample: 1
       first_saccade_only: false
   training_settings:
-    max_epoch: 8
+    max_epoch: 20
     min_epoch: 0
     sleep_freq: 99999
     evaluate_freq: 2
@@ -1480,13 +1480,13 @@ sub_experiments:
         audit_root_branch: false
       normalization_mechanism_artifacts: true
       normalization_mechanism_trajectory_epochs:
-      - 8
+      - 20
       normalization_mechanism_trajectory_phases:
       - test
       normalization_mechanism_artifact_micro_batch_size: 20
       normalization_mechanism_save_full_weight: true
       normalization_mechanism_full_weight_epochs:
-      - 8
+      - 20
     readout_params:
       weight_decay: 0.0001
       optimizer: lbfgs
@@ -1515,7 +1515,7 @@ sub_experiments:
         learning_rate_decrease_base: 0
       base_cortex_settings:
         amplifier_settings:
-          log_amplifier_delta: 6.25e-06
+          log_amplifier_delta: 0.0
           target_mean_first_spike_earliness:
             delay_factor: 0.5
             min_target_earliness: 0.02
@@ -1623,7 +1623,7 @@ sub_experiments:
       spatial_downsample: 1
       first_saccade_only: false
   training_settings:
-    max_epoch: 8
+    max_epoch: 20
     min_epoch: 0
     sleep_freq: 99999
     evaluate_freq: 2
@@ -1681,13 +1681,13 @@ sub_experiments:
         audit_root_branch: false
       normalization_mechanism_artifacts: true
       normalization_mechanism_trajectory_epochs:
-      - 8
+      - 20
       normalization_mechanism_trajectory_phases:
       - test
       normalization_mechanism_artifact_micro_batch_size: 20
       normalization_mechanism_save_full_weight: true
       normalization_mechanism_full_weight_epochs:
-      - 8
+      - 20
     readout_params:
       weight_decay: 0.0001
       optimizer: lbfgs
@@ -1716,7 +1716,7 @@ sub_experiments:
         learning_rate_decrease_base: 0
       base_cortex_settings:
         amplifier_settings:
-          log_amplifier_delta: 6.25e-06
+          log_amplifier_delta: 0.0
           target_mean_first_spike_earliness:
             delay_factor: 0.5
             min_target_earliness: 0.02
@@ -1824,7 +1824,7 @@ sub_experiments:
       spatial_downsample: 1
       first_saccade_only: false
   training_settings:
-    max_epoch: 8
+    max_epoch: 20
     min_epoch: 0
     sleep_freq: 99999
     evaluate_freq: 2
@@ -1882,13 +1882,13 @@ sub_experiments:
         audit_root_branch: false
       normalization_mechanism_artifacts: true
       normalization_mechanism_trajectory_epochs:
-      - 8
+      - 20
       normalization_mechanism_trajectory_phases:
       - test
       normalization_mechanism_artifact_micro_batch_size: 20
       normalization_mechanism_save_full_weight: true
       normalization_mechanism_full_weight_epochs:
-      - 8
+      - 20
     readout_params:
       weight_decay: 0.0001
       optimizer: lbfgs
@@ -1917,7 +1917,7 @@ sub_experiments:
         learning_rate_decrease_base: 0
       base_cortex_settings:
         amplifier_settings:
-          log_amplifier_delta: 6.25e-06
+          log_amplifier_delta: 0.0
           target_mean_first_spike_earliness:
             delay_factor: 0.5
             min_target_earliness: 0.02

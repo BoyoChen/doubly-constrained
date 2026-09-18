@@ -1,12 +1,12 @@
-# Publication bundle: existing settings; no dispatch on creation.
 experiment_name: paper_doubly_sender
 shared_settings: {}
 sub_experiments:
 - description:
     main: MNIST shared-checkpoint sender decision mechanism with native interventions.
-    question: Which sender neurons support decisions, and does root pre change their distribution or causal
-      necessity?
-    subexp: Train and save exactly one shared epoch-one checkpoint per seed, with immediate zero-learning interventions.
+    question: Which sender neurons support decisions, and does root pre change their
+      distribution or causal necessity?
+    subexp: Train and save exactly one shared epoch-one checkpoint per seed, with
+      immediate zero-learning interventions.
   data:
     dataset_name: MNIST
     batch_size: 200
@@ -145,12 +145,12 @@ sub_experiments:
       base_cortex_settings:
         amplifier_settings:
           log_amplifier_delta: 6.25e-06
+          lower_bound: 1.0e-05
+          upper_bound: 999999999
           log_amplifier_delta_by_cortex:
             A: 1.25e-06
           target_mean_first_spike_earliness_by_cortex:
             A: 0.38
-          lower_bound: 1.0e-05
-          upper_bound: 999999999
         kernel_settings:
           init_mean: 0.8
           init_std: 0.05
@@ -165,6 +165,12 @@ sub_experiments:
             out_weight_len: 1
             use_shape_ratio: true
             dim_1_mode: per_sender
+            dim_0_freq_by_cortex:
+              A: 1
+              A-1: 1
+            dim_1_freq_by_cortex:
+              A: 0
+              A-1: 0
         lateral_inhibition:
           factor: 3.0
           power: 1.0
@@ -228,12 +234,13 @@ sub_experiments:
   - 40503
 - description:
     main: Ex849 adaptive sender removal without threshold division in support scoring.
-    question: Does adaptive Doubly sender-specific decision dependence persist without receiver-threshold normalization
-      of support?
-    subexp: Load the shared epoch-one checkpoint; train nine more epochs through global epoch ten with post
-      root normalization, adaptive root threshold/amplifier and frozen upstream features. Rank sender support
-      without threshold division; retain receiver-earliness weighting and evaluate the threshold-normalized
-      reference on the same model. Save the final checkpoint.
+    question: Does adaptive Doubly sender-specific decision dependence persist without
+      receiver-threshold normalization of support?
+    subexp: Load the shared epoch-one checkpoint; train nineteen more epochs through
+      global epoch twenty with post root normalization, adaptive root threshold/amplifier
+      and frozen upstream features. Rank sender support without threshold division;
+      retain receiver-earliness weighting and evaluate the threshold-normalized reference
+      on the same model. Save the final checkpoint.
   data:
     dataset_name: MNIST
     batch_size: 200
@@ -264,7 +271,7 @@ sub_experiments:
         sigma_center: 2.888888888888889
         sigma_surround: 1.4444444444444444
   training_settings:
-    max_epoch: 9
+    max_epoch: 19
     min_epoch: 0
     sleep_freq: 99999
     evaluate_freq: 2
@@ -337,8 +344,7 @@ sub_experiments:
       normalization_mechanism_save_full_weight: false
       sender_decision_study:
         epochs:
-        - 2
-        - 10
+        - 20
         common_prefix_epoch: 1
         phases:
         - valid
@@ -358,6 +364,112 @@ sub_experiments:
     evaluation_micro_batch_size: 200
     epoch_offset: 1
   model:
+    first_spike_delay_factor: null
+    mean_spike_delay_factor: null
+    target_mean_earliness:
+      min_target_earliness: 0.03625
+      max_target_earliness: 0.03625
+    cortex_spec:
+      PCA_cortex_settings:
+        PCA_settings:
+          leave_out_num: 2
+          method: PCA
+          normalizing: true
+          remained_variance: 1
+          transpose: false
+        new_cortex_split_ratio: 1
+        refund_with_amplifier: true
+        regularize_afterward: false
+        split_only_tail: true
+        weight_refund: true
+      STDP_cortex_settings:
+        init_D_P_rate_ratio: 0.7
+        init_P_rate: 1.0e-06
+        learning_rate_decrease_base: 0
+      base_cortex_settings:
+        amplifier_settings:
+          log_amplifier_delta: 6.25e-06
+          lower_bound: 1.0e-05
+          upper_bound: 999999999
+          log_amplifier_delta_by_cortex:
+            A: 1.25e-06
+          target_mean_first_spike_earliness_by_cortex:
+            A: 0.38
+        kernel_settings:
+          init_mean: 0.8
+          init_std: 0.05
+          minimal_weight: 5.5e-05
+          no_skip_links: true
+          non_negative_weights: false
+          normalize_settings:
+            dim_0_freq: 1
+            dim_1_freq: 0
+            freq_diff: 0
+            norm_p: 1
+            out_weight_len: 1
+            use_shape_ratio: true
+            dim_1_mode: per_sender
+            dim_0_freq_by_cortex:
+              A: 1
+              A-1: 1
+            dim_1_freq_by_cortex:
+              A: 0
+              A-1: 0
+        lateral_inhibition:
+          factor: 3.0
+          power: 1.0
+        top_k: 4
+      neuron_vectors_spec:
+        potential_decay_rate: 1.0
+        reset_state: 0
+        resting_length: 999
+        threshold_settings:
+          homeostasis_ema_decay: 0.0
+          log_thresholds_delta: 0.00125
+          lower_bound: 0.1
+          upper_bound: 10.0
+          target_mean_first_spike_factor_by_cortex:
+            A: 0.075
+      spike_trace_settings:
+        balanced_spike_trace: true
+        spike_decay_rate: 0.66
+    image_encoder_spec:
+      encoder: rank_order
+      simulation_time: 40
+      end_score_search_steps: 16
+    init_cortex:
+      fix_shape: true
+      input_channel: 6
+      kernel_size: 28
+      output_channel: 10
+      stride: 4
+      init_amplifier: 1
+      competition_group_N: 20
+      pooling_settings:
+        mode: max
+        kernel_size: global
+      subcortexs:
+      - fix_shape: true
+        input_channel: 6
+        kernel_size: 10
+        output_channel: 300
+        stride: 2
+        pooling_settings:
+          mode: max
+          kernel_size: 2
+    remember_settings:
+      STDP_mechanism:
+        label_usage: signed_ltp
+        label_propagating: false
+        hinge_softmax_label:
+          margin: 0.3
+          label_scope: class_aggregate
+          positive_scale: 40.0
+          negative_scale: 120.0
+          wrong_background_value: 0.0
+          softmax_temperature: 0.25
+          correct_background_value: 0.0
+      self_cleaning_after_STDP: false
     load_from:
       experiment_name: paper_doubly_sender
       sub_exp_name: mnist_shared_prefix_e1_seed{seed}
@@ -369,12 +481,13 @@ sub_experiments:
   - 40503
 - description:
     main: Ex849 adaptive sender removal without threshold division in support scoring.
-    question: Does adaptive Doubly sender-specific decision dependence persist without receiver-threshold normalization
-      of support?
-    subexp: Load the shared epoch-one checkpoint; train nine more epochs through global epoch ten with pre
-      root normalization, adaptive root threshold/amplifier and frozen upstream features. Rank sender support
-      without threshold division; retain receiver-earliness weighting and evaluate the threshold-normalized
-      reference on the same model. Save the final checkpoint.
+    question: Does adaptive Doubly sender-specific decision dependence persist without
+      receiver-threshold normalization of support?
+    subexp: Load the shared epoch-one checkpoint; train nineteen more epochs through
+      global epoch twenty with pre root normalization, adaptive root threshold/amplifier
+      and frozen upstream features. Rank sender support without threshold division;
+      retain receiver-earliness weighting and evaluate the threshold-normalized reference
+      on the same model. Save the final checkpoint.
   data:
     dataset_name: MNIST
     batch_size: 200
@@ -405,7 +518,7 @@ sub_experiments:
         sigma_center: 2.888888888888889
         sigma_surround: 1.4444444444444444
   training_settings:
-    max_epoch: 9
+    max_epoch: 19
     min_epoch: 0
     sleep_freq: 99999
     evaluate_freq: 2
@@ -478,8 +591,7 @@ sub_experiments:
       normalization_mechanism_save_full_weight: false
       sender_decision_study:
         epochs:
-        - 2
-        - 10
+        - 20
         common_prefix_epoch: 1
         phases:
         - valid
@@ -499,6 +611,112 @@ sub_experiments:
     evaluation_micro_batch_size: 200
     epoch_offset: 1
   model:
+    first_spike_delay_factor: null
+    mean_spike_delay_factor: null
+    target_mean_earliness:
+      min_target_earliness: 0.03625
+      max_target_earliness: 0.03625
+    cortex_spec:
+      PCA_cortex_settings:
+        PCA_settings:
+          leave_out_num: 2
+          method: PCA
+          normalizing: true
+          remained_variance: 1
+          transpose: false
+        new_cortex_split_ratio: 1
+        refund_with_amplifier: true
+        regularize_afterward: false
+        split_only_tail: true
+        weight_refund: true
+      STDP_cortex_settings:
+        init_D_P_rate_ratio: 0.7
+        init_P_rate: 1.0e-06
+        learning_rate_decrease_base: 0
+      base_cortex_settings:
+        amplifier_settings:
+          log_amplifier_delta: 6.25e-06
+          lower_bound: 1.0e-05
+          upper_bound: 999999999
+          log_amplifier_delta_by_cortex:
+            A: 1.25e-06
+          target_mean_first_spike_earliness_by_cortex:
+            A: 0.38
+        kernel_settings:
+          init_mean: 0.8
+          init_std: 0.05
+          minimal_weight: 5.5e-05
+          no_skip_links: true
+          non_negative_weights: false
+          normalize_settings:
+            dim_0_freq: 2
+            dim_1_freq: 2
+            freq_diff: 1
+            norm_p: 1
+            out_weight_len: 1
+            use_shape_ratio: true
+            dim_1_mode: per_sender
+            dim_0_freq_by_cortex:
+              A: 2
+              A-1: 1
+            dim_1_freq_by_cortex:
+              A: 2
+              A-1: 0
+        lateral_inhibition:
+          factor: 3.0
+          power: 1.0
+        top_k: 4
+      neuron_vectors_spec:
+        potential_decay_rate: 1.0
+        reset_state: 0
+        resting_length: 999
+        threshold_settings:
+          homeostasis_ema_decay: 0.0
+          log_thresholds_delta: 0.00125
+          lower_bound: 0.1
+          upper_bound: 10.0
+          target_mean_first_spike_factor_by_cortex:
+            A: 0.075
+      spike_trace_settings:
+        balanced_spike_trace: true
+        spike_decay_rate: 0.66
+    image_encoder_spec:
+      encoder: rank_order
+      simulation_time: 40
+      end_score_search_steps: 16
+    init_cortex:
+      fix_shape: true
+      input_channel: 6
+      kernel_size: 28
+      output_channel: 10
+      stride: 4
+      init_amplifier: 1
+      competition_group_N: 20
+      pooling_settings:
+        mode: max
+        kernel_size: global
+      subcortexs:
+      - fix_shape: true
+        input_channel: 6
+        kernel_size: 10
+        output_channel: 300
+        stride: 2
+        pooling_settings:
+          mode: max
+          kernel_size: 2
+    remember_settings:
+      STDP_mechanism:
+        label_usage: signed_ltp
+        label_propagating: false
+        hinge_softmax_label:
+          margin: 0.3
+          label_scope: class_aggregate
+          positive_scale: 40.0
+          negative_scale: 120.0
+          wrong_background_value: 0.0
+          softmax_temperature: 0.25
+          correct_background_value: 0.0
+      self_cleaning_after_STDP: false
     load_from:
       experiment_name: paper_doubly_sender
       sub_exp_name: mnist_shared_prefix_e1_seed{seed}

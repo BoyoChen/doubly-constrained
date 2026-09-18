@@ -31,7 +31,7 @@ sub_experiments:
         sigma_center: 2.888888888888889
         sigma_surround: 1.4444444444444444
   training_settings:
-    max_epoch: 100
+    max_epoch: 20
     min_epoch: 0
     sleep_freq: 99999
     evaluate_freq: 2
@@ -39,7 +39,6 @@ sub_experiments:
     stdp_update_mode: two_pass_decision_contingent
     simulation_forward_mode: streaming
     save_best_model: false
-    save_final_model: false
     evaluation_level: 3
     evaluation_phases:
     - valid
@@ -89,19 +88,20 @@ sub_experiments:
         audit_root_branch: false
       normalization_mechanism_artifacts: true
       normalization_mechanism_trajectory_epochs:
-      - 100
+      - 20
       normalization_mechanism_trajectory_phases:
       - test
       normalization_mechanism_artifact_micro_batch_size: 20
       normalization_mechanism_save_full_weight: true
       normalization_mechanism_full_weight_epochs:
-      - 100
+      - 20
     readout_params:
       weight_decay: 0.0001
       optimizer: lbfgs
       max_iter: 200
       lr: 0.001
       epochs: 0
+    save_final_model: false
     evaluation_micro_batch_size: 200
   model:
     first_spike_delay_factor: null
@@ -129,12 +129,12 @@ sub_experiments:
       base_cortex_settings:
         amplifier_settings:
           log_amplifier_delta: 6.25e-06
+          lower_bound: 1.0e-05
+          upper_bound: 999999999
           log_amplifier_delta_by_cortex:
             A: 1.25e-06
           target_mean_first_spike_earliness_by_cortex:
             A: 0.38
-          lower_bound: 1.0e-05
-          upper_bound: 999999999
         kernel_settings:
           init_mean: 0.8
           init_std: 0.05
@@ -249,7 +249,7 @@ sub_experiments:
         sigma_center: 2.888888888888889
         sigma_surround: 1.4444444444444444
   training_settings:
-    max_epoch: 100
+    max_epoch: 20
     min_epoch: 0
     sleep_freq: 99999
     evaluate_freq: 2
@@ -257,7 +257,6 @@ sub_experiments:
     stdp_update_mode: two_pass_decision_contingent
     simulation_forward_mode: streaming
     save_best_model: false
-    save_final_model: false
     evaluation_level: 3
     evaluation_phases:
     - valid
@@ -307,19 +306,20 @@ sub_experiments:
         audit_root_branch: false
       normalization_mechanism_artifacts: true
       normalization_mechanism_trajectory_epochs:
-      - 100
+      - 20
       normalization_mechanism_trajectory_phases:
       - test
       normalization_mechanism_artifact_micro_batch_size: 20
       normalization_mechanism_save_full_weight: true
       normalization_mechanism_full_weight_epochs:
-      - 100
+      - 20
     readout_params:
       weight_decay: 0.0001
       optimizer: lbfgs
       max_iter: 200
       lr: 0.001
       epochs: 0
+    save_final_model: false
     evaluation_micro_batch_size: 200
   model:
     first_spike_delay_factor: null
@@ -347,12 +347,12 @@ sub_experiments:
       base_cortex_settings:
         amplifier_settings:
           log_amplifier_delta: 6.25e-06
+          lower_bound: 1.0e-05
+          upper_bound: 999999999
           log_amplifier_delta_by_cortex:
             A: 1.25e-06
           target_mean_first_spike_earliness_by_cortex:
             A: 0.38
-          lower_bound: 1.0e-05
-          upper_bound: 999999999
         kernel_settings:
           init_mean: 0.8
           init_std: 0.05
@@ -467,7 +467,7 @@ sub_experiments:
         sigma_center: 2.888888888888889
         sigma_surround: 1.4444444444444444
   training_settings:
-    max_epoch: 100
+    max_epoch: 20
     min_epoch: 0
     sleep_freq: 99999
     evaluate_freq: 2
@@ -475,7 +475,6 @@ sub_experiments:
     stdp_update_mode: two_pass_decision_contingent
     simulation_forward_mode: streaming
     save_best_model: false
-    save_final_model: false
     evaluation_level: 3
     evaluation_phases:
     - valid
@@ -525,19 +524,20 @@ sub_experiments:
         audit_root_branch: false
       normalization_mechanism_artifacts: true
       normalization_mechanism_trajectory_epochs:
-      - 100
+      - 20
       normalization_mechanism_trajectory_phases:
       - test
       normalization_mechanism_artifact_micro_batch_size: 20
       normalization_mechanism_save_full_weight: true
       normalization_mechanism_full_weight_epochs:
-      - 100
+      - 20
     readout_params:
       weight_decay: 0.0001
       optimizer: lbfgs
       max_iter: 200
       lr: 0.001
       epochs: 0
+    save_final_model: false
     evaluation_micro_batch_size: 200
   model:
     first_spike_delay_factor: null
@@ -565,12 +565,12 @@ sub_experiments:
       base_cortex_settings:
         amplifier_settings:
           log_amplifier_delta: 6.25e-06
+          lower_bound: 1.0e-05
+          upper_bound: 999999999
           log_amplifier_delta_by_cortex:
             A: 1.25e-06
           target_mean_first_spike_earliness_by_cortex:
             A: 0.38
-          lower_bound: 1.0e-05
-          upper_bound: 999999999
         kernel_settings:
           init_mean: 0.8
           init_std: 0.05
@@ -685,7 +685,7 @@ sub_experiments:
         sigma_center: 2.888888888888889
         sigma_surround: 1.4444444444444444
   training_settings:
-    max_epoch: 100
+    max_epoch: 20
     min_epoch: 0
     sleep_freq: 99999
     evaluate_freq: 2
@@ -693,7 +693,6 @@ sub_experiments:
     stdp_update_mode: two_pass_decision_contingent
     simulation_forward_mode: streaming
     save_best_model: false
-    save_final_model: false
     evaluation_level: 3
     evaluation_phases:
     - valid
@@ -743,19 +742,20 @@ sub_experiments:
         audit_root_branch: false
       normalization_mechanism_artifacts: true
       normalization_mechanism_trajectory_epochs:
-      - 100
+      - 20
       normalization_mechanism_trajectory_phases:
       - test
       normalization_mechanism_artifact_micro_batch_size: 20
       normalization_mechanism_save_full_weight: true
       normalization_mechanism_full_weight_epochs:
-      - 100
+      - 20
     readout_params:
       weight_decay: 0.0001
       optimizer: lbfgs
       max_iter: 200
       lr: 0.001
       epochs: 0
+    save_final_model: false
     evaluation_micro_batch_size: 200
   model:
     first_spike_delay_factor: null
@@ -783,12 +783,12 @@ sub_experiments:
       base_cortex_settings:
         amplifier_settings:
           log_amplifier_delta: 6.25e-06
+          lower_bound: 1.0e-05
+          upper_bound: 999999999
           log_amplifier_delta_by_cortex:
             A: 1.25e-06
           target_mean_first_spike_earliness_by_cortex:
             A: 0.38
-          lower_bound: 1.0e-05
-          upper_bound: 999999999
         kernel_settings:
           init_mean: 0.8
           init_std: 0.05
@@ -903,7 +903,7 @@ sub_experiments:
         sigma_center: 2.888888888888889
         sigma_surround: 1.4444444444444444
   training_settings:
-    max_epoch: 100
+    max_epoch: 20
     min_epoch: 0
     sleep_freq: 99999
     evaluate_freq: 2
@@ -911,7 +911,6 @@ sub_experiments:
     stdp_update_mode: two_pass_decision_contingent
     simulation_forward_mode: streaming
     save_best_model: false
-    save_final_model: false
     evaluation_level: 3
     evaluation_phases:
     - valid
@@ -961,19 +960,20 @@ sub_experiments:
         audit_root_branch: false
       normalization_mechanism_artifacts: true
       normalization_mechanism_trajectory_epochs:
-      - 100
+      - 20
       normalization_mechanism_trajectory_phases:
       - test
       normalization_mechanism_artifact_micro_batch_size: 20
       normalization_mechanism_save_full_weight: true
       normalization_mechanism_full_weight_epochs:
-      - 100
+      - 20
     readout_params:
       weight_decay: 0.0001
       optimizer: lbfgs
       max_iter: 200
       lr: 0.001
       epochs: 0
+    save_final_model: false
     evaluation_micro_batch_size: 200
   model:
     first_spike_delay_factor: null
@@ -1001,12 +1001,12 @@ sub_experiments:
       base_cortex_settings:
         amplifier_settings:
           log_amplifier_delta: 6.25e-06
+          lower_bound: 1.0e-05
+          upper_bound: 999999999
           log_amplifier_delta_by_cortex:
             A: 1.25e-06
           target_mean_first_spike_earliness_by_cortex:
             A: 0.38
-          lower_bound: 1.0e-05
-          upper_bound: 999999999
         kernel_settings:
           init_mean: 0.8
           init_std: 0.05
@@ -1121,7 +1121,7 @@ sub_experiments:
         sigma_center: 2.888888888888889
         sigma_surround: 1.4444444444444444
   training_settings:
-    max_epoch: 100
+    max_epoch: 20
     min_epoch: 0
     sleep_freq: 99999
     evaluate_freq: 2
@@ -1129,7 +1129,6 @@ sub_experiments:
     stdp_update_mode: two_pass_decision_contingent
     simulation_forward_mode: streaming
     save_best_model: false
-    save_final_model: false
     evaluation_level: 3
     evaluation_phases:
     - valid
@@ -1179,19 +1178,20 @@ sub_experiments:
         audit_root_branch: false
       normalization_mechanism_artifacts: true
       normalization_mechanism_trajectory_epochs:
-      - 100
+      - 20
       normalization_mechanism_trajectory_phases:
       - test
       normalization_mechanism_artifact_micro_batch_size: 20
       normalization_mechanism_save_full_weight: true
       normalization_mechanism_full_weight_epochs:
-      - 100
+      - 20
     readout_params:
       weight_decay: 0.0001
       optimizer: lbfgs
       max_iter: 200
       lr: 0.001
       epochs: 0
+    save_final_model: false
     evaluation_micro_batch_size: 200
   model:
     first_spike_delay_factor: null
@@ -1219,12 +1219,12 @@ sub_experiments:
       base_cortex_settings:
         amplifier_settings:
           log_amplifier_delta: 6.25e-06
+          lower_bound: 1.0e-05
+          upper_bound: 999999999
           log_amplifier_delta_by_cortex:
             A: 1.25e-06
           target_mean_first_spike_earliness_by_cortex:
             A: 0.38
-          lower_bound: 1.0e-05
-          upper_bound: 999999999
         kernel_settings:
           init_mean: 0.8
           init_std: 0.05
@@ -1339,7 +1339,7 @@ sub_experiments:
         sigma_center: 2.888888888888889
         sigma_surround: 1.4444444444444444
   training_settings:
-    max_epoch: 100
+    max_epoch: 20
     min_epoch: 0
     sleep_freq: 99999
     evaluate_freq: 2
@@ -1347,7 +1347,6 @@ sub_experiments:
     stdp_update_mode: two_pass_decision_contingent
     simulation_forward_mode: streaming
     save_best_model: false
-    save_final_model: false
     evaluation_level: 3
     evaluation_phases:
     - valid
@@ -1397,19 +1396,20 @@ sub_experiments:
         audit_root_branch: false
       normalization_mechanism_artifacts: true
       normalization_mechanism_trajectory_epochs:
-      - 100
+      - 20
       normalization_mechanism_trajectory_phases:
       - test
       normalization_mechanism_artifact_micro_batch_size: 20
       normalization_mechanism_save_full_weight: true
       normalization_mechanism_full_weight_epochs:
-      - 100
+      - 20
     readout_params:
       weight_decay: 0.0001
       optimizer: lbfgs
       max_iter: 200
       lr: 0.001
       epochs: 0
+    save_final_model: false
     evaluation_micro_batch_size: 200
   model:
     first_spike_delay_factor: null
@@ -1437,12 +1437,12 @@ sub_experiments:
       base_cortex_settings:
         amplifier_settings:
           log_amplifier_delta: 6.25e-06
+          lower_bound: 1.0e-05
+          upper_bound: 999999999
           log_amplifier_delta_by_cortex:
             A: 1.25e-06
           target_mean_first_spike_earliness_by_cortex:
             A: 0.38
-          lower_bound: 1.0e-05
-          upper_bound: 999999999
         kernel_settings:
           init_mean: 0.8
           init_std: 0.05
@@ -1557,7 +1557,7 @@ sub_experiments:
         sigma_center: 2.888888888888889
         sigma_surround: 1.4444444444444444
   training_settings:
-    max_epoch: 100
+    max_epoch: 20
     min_epoch: 0
     sleep_freq: 99999
     evaluate_freq: 2
@@ -1565,7 +1565,6 @@ sub_experiments:
     stdp_update_mode: two_pass_decision_contingent
     simulation_forward_mode: streaming
     save_best_model: false
-    save_final_model: false
     evaluation_level: 3
     evaluation_phases:
     - valid
@@ -1615,19 +1614,20 @@ sub_experiments:
         audit_root_branch: false
       normalization_mechanism_artifacts: true
       normalization_mechanism_trajectory_epochs:
-      - 100
+      - 20
       normalization_mechanism_trajectory_phases:
       - test
       normalization_mechanism_artifact_micro_batch_size: 20
       normalization_mechanism_save_full_weight: true
       normalization_mechanism_full_weight_epochs:
-      - 100
+      - 20
     readout_params:
       weight_decay: 0.0001
       optimizer: lbfgs
       max_iter: 200
       lr: 0.001
       epochs: 0
+    save_final_model: false
     evaluation_micro_batch_size: 200
   model:
     first_spike_delay_factor: null
@@ -1655,12 +1655,12 @@ sub_experiments:
       base_cortex_settings:
         amplifier_settings:
           log_amplifier_delta: 6.25e-06
+          lower_bound: 1.0e-05
+          upper_bound: 999999999
           log_amplifier_delta_by_cortex:
             A: 1.25e-06
           target_mean_first_spike_earliness_by_cortex:
             A: 0.38
-          lower_bound: 1.0e-05
-          upper_bound: 999999999
         kernel_settings:
           init_mean: 0.8
           init_std: 0.05
@@ -1775,7 +1775,7 @@ sub_experiments:
         sigma_center: 2.888888888888889
         sigma_surround: 1.4444444444444444
   training_settings:
-    max_epoch: 100
+    max_epoch: 20
     min_epoch: 0
     sleep_freq: 99999
     evaluate_freq: 2
@@ -1783,7 +1783,6 @@ sub_experiments:
     stdp_update_mode: two_pass_decision_contingent
     simulation_forward_mode: streaming
     save_best_model: false
-    save_final_model: false
     evaluation_level: 3
     evaluation_phases:
     - valid
@@ -1833,19 +1832,20 @@ sub_experiments:
         audit_root_branch: false
       normalization_mechanism_artifacts: true
       normalization_mechanism_trajectory_epochs:
-      - 100
+      - 20
       normalization_mechanism_trajectory_phases:
       - test
       normalization_mechanism_artifact_micro_batch_size: 20
       normalization_mechanism_save_full_weight: true
       normalization_mechanism_full_weight_epochs:
-      - 100
+      - 20
     readout_params:
       weight_decay: 0.0001
       optimizer: lbfgs
       max_iter: 200
       lr: 0.001
       epochs: 0
+    save_final_model: false
     evaluation_micro_batch_size: 200
   model:
     first_spike_delay_factor: null
@@ -1873,12 +1873,12 @@ sub_experiments:
       base_cortex_settings:
         amplifier_settings:
           log_amplifier_delta: 6.25e-06
+          lower_bound: 1.0e-05
+          upper_bound: 999999999
           log_amplifier_delta_by_cortex:
             A: 1.25e-06
           target_mean_first_spike_earliness_by_cortex:
             A: 0.38
-          lower_bound: 1.0e-05
-          upper_bound: 999999999
         kernel_settings:
           init_mean: 0.8
           init_std: 0.05
@@ -1993,7 +1993,7 @@ sub_experiments:
         sigma_center: 2.888888888888889
         sigma_surround: 1.4444444444444444
   training_settings:
-    max_epoch: 100
+    max_epoch: 20
     min_epoch: 0
     sleep_freq: 99999
     evaluate_freq: 2
@@ -2001,7 +2001,6 @@ sub_experiments:
     stdp_update_mode: two_pass_decision_contingent
     simulation_forward_mode: streaming
     save_best_model: false
-    save_final_model: false
     evaluation_level: 3
     evaluation_phases:
     - valid
@@ -2051,19 +2050,20 @@ sub_experiments:
         audit_root_branch: false
       normalization_mechanism_artifacts: true
       normalization_mechanism_trajectory_epochs:
-      - 100
+      - 20
       normalization_mechanism_trajectory_phases:
       - test
       normalization_mechanism_artifact_micro_batch_size: 20
       normalization_mechanism_save_full_weight: true
       normalization_mechanism_full_weight_epochs:
-      - 100
+      - 20
     readout_params:
       weight_decay: 0.0001
       optimizer: lbfgs
       max_iter: 200
       lr: 0.001
       epochs: 0
+    save_final_model: false
     evaluation_micro_batch_size: 200
   model:
     first_spike_delay_factor: null
@@ -2091,12 +2091,12 @@ sub_experiments:
       base_cortex_settings:
         amplifier_settings:
           log_amplifier_delta: 6.25e-06
+          lower_bound: 1.0e-05
+          upper_bound: 999999999
           log_amplifier_delta_by_cortex:
             A: 1.25e-06
           target_mean_first_spike_earliness_by_cortex:
             A: 0.38
-          lower_bound: 1.0e-05
-          upper_bound: 999999999
         kernel_settings:
           init_mean: 0.8
           init_std: 0.05

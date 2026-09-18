@@ -55,7 +55,7 @@ def main():
     frame=build(label,out/'chapter',out/'logs');assert len(frame)==80
     assert all((out/'chapter'/f'table{i}.csv').is_file() for i in range(1,5))
     # Missing artifacts must fail rather than substituting historical data.
-    row=settings('mnist',label)[0];target=out/'logs'/row['experiment_name']/row['sub_exp_name']/label/'mechanism_artifacts/root_weight_epoch100.npz'
+    row=settings('mnist',label)[0];epoch=row['training_settings']['max_epoch'];target=out/'logs'/row['experiment_name']/row['sub_exp_name']/label/f'mechanism_artifacts/root_weight_epoch{epoch:03d}.npz'
     backup=target.read_bytes();target.unlink()
     try:
         try:build(label,out/'missing_check',out/'logs')
@@ -71,11 +71,11 @@ def main():
         # production CSV contract (four seeds, twenty samples per class).
         expanded=pd.concat([source.assign(sample_index=source.sample_index+10*i) for i in range(20)],ignore_index=True)
         for seed in range(40500,40504):
-            dest=sender_logs/'paper_doubly_sender'/f'mnist_common_e1_{arm}_unscaled_support_seed{seed}'/label/'sender_decision/epoch010/valid'
+            dest=sender_logs/'paper_doubly_sender'/f'mnist_common_e1_{arm}_unscaled_support_seed{seed}'/label/'sender_decision/epoch020/valid'
             dest.mkdir(parents=True,exist_ok=True)
             expanded.to_csv(dest/'native_interventions.csv',index=False)
             info=json.loads(path.with_name('manifest.json').read_text())
-            info['sample_count']=200;info['settings']['samples_per_class']=20
+            info['epoch']=20;info['sample_count']=200;info['settings']['samples_per_class']=20
             (dest/'manifest.json').write_text(json.dumps(info))
         for variant,group in source.groupby('variant'):
             sender_rows.append(dict(arm=arm,variant=variant,accuracy_percent_mean=100*group.correct.mean()))

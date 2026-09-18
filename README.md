@@ -45,12 +45,15 @@ The loaders download MNIST and N-MNIST on first training use, into `data/`.
 
 | File | Dataset | Seeds | Training | Outputs |
 |---|---|---:|---:|---|
-| `01_mnist.yaml` | MNIST | 34000–34003 | 100 epochs | Tables 1–3, Figure 1 |
-| `02_nmnist_t20.yaml` | Native N-MNIST, T=20 | 35100–35103 | 8 epochs | Tables 1, 2, 4; Figure 2 |
-| `03_sender.yaml` | MNIST | 40500–40503 | 1 shared + 9 continuation epochs | Figure 3 |
+| `01_mnist.yaml` | MNIST | 34000–34003 | 20 epochs | Tables 1–3, Figure 1 |
+| `02_nmnist_t20.yaml` | Native N-MNIST, T=20 | 35100–35103 | 20 epochs | Tables 1, 2, 4; Figure 2 |
+| `03_sender.yaml` | MNIST | 40500–40503 | 1 shared + 19 continuation epochs | Figure 3 |
 
-All conditions freeze A-1 from epoch 2. Tables 1–4 use the final epoch and full
-test split. Accuracy is the native spike decision; no-decision samples are incorrect.
+MNIST follows the receiver-side-amplifier-compatible Temporal-Margin `ex767`/`ex781`
+substrate; N-MNIST follows its native T=20 `ex788` fixed-amplifier-10 substrate.
+Both use the same 20-epoch budget and freeze A-1 from epoch 2. Tables 1–4 use the
+final epoch and full test split. Accuracy is the native spike decision;
+no-decision samples are incorrect.
 
 ### Normalization conditions
 
@@ -104,7 +107,7 @@ fixed-zero direct block and upstream A-1 activity are excluded.
 
 | Parameter | Value |
 |---|---|
-| Evaluation | Epoch 10 validation subset |
+| Evaluation | Epoch 20 validation subset |
 | Samples | 200 per seed; 20 per class |
 | Compared models | Post-only and output-only Doubly from the same seed prefix |
 | Top removal | Highest-support 10% of the positive-support sender pool, rounded up |
