@@ -27,32 +27,44 @@ check CUDA availability before training.
 
 ## Reproduce the chapter
 
-Run these commands from the repository root with the environment activated:
+Like the earlier [Doubly-Constrained-Normalization repository](https://github.com/BoyoChen/Doubly-Constrained-Normalization),
+all experiments start from `main.py` inside `code/`. There are no separate training,
+checkpoint, or plotting scripts to run.
 
 ```bash
-# Plan only: enumerate 92 runs; no training, downloads, or job submission.
-bash scripts/run_commands.sh plan paper-v3
+cd code
 
-# CPU synthetic checks: construction, updates, checkpoint continuation,
-# interventions, diagnostic artifacts, and table/figure generation.
-bash scripts/run_commands.sh check
+# Train all three experiments and generate all four tables and three figures.
+python main.py experiments
 
-# Linux GPU: train all three groups, then generate all chapter assets.
-bash scripts/run_commands.sh train paper-v3
-
-# Rebuild tables and figures from completed runs without retraining.
-bash scripts/run_commands.sh analyze paper-v3
+# Or run one experiment file.
+python main.py experiments/01_mnist.yaml
+python main.py experiments/02_nmnist_t20.yaml
+python main.py experiments/03_sender.yaml
 ```
 
-`paper-v3` is a run label; choose a new label for an independent rerun. The script
-executes runs sequentially. It uses neither Prefect nor an external experiment server.
-Windows checks can be run without Bash:
+The sender experiment automatically trains its shared prefixes before loading
+them for the continuations, then generates its intervention figure. If you ran
+the files separately, assemble the complete chapter after all three finish:
 
-```powershell
-python scripts/validate.py --construct-models
-python scripts/smoke.py
-python scripts/artifact_smoke.py
+```bash
+python main.py experiments --analyze
 ```
+
+Optional checks use the same entry point:
+
+```bash
+# Plan only: no training or dataset downloads.
+python main.py experiments --dry-run
+
+# CPU synthetic checks, also supported on Windows.
+python main.py --check
+```
+
+The default run label is `paper-v3`; use `--label my-run` consistently for a new
+run. The command executes experiments sequentially, without Prefect or an external
+server. From the repository root, the equivalent entry is `python code/main.py`.
+Tests live in `tests/`; training and analysis helpers are internal modules.
 
 ### Data
 
@@ -86,7 +98,7 @@ conditions apply alternating normalization to the hidden layer only or to both l
 The Post and output-only conditions are reused across comparisons rather than trained twice.
 
 See [Experiment protocol](#experiment-protocol) below for definitions and interpretation limits, and
-[scripts/coverage.json](scripts/coverage.json) for the machine-readable mapping.
+[code/coverage.json](code/coverage.json) for the machine-readable mapping.
 
 Results are written to `output/doubly_reproduction/<label>/chapter/`:
 
@@ -94,8 +106,7 @@ Results are written to `output/doubly_reproduction/<label>/chapter/`:
 - `figure1`–`figure3`: PDF, SVG, and PNG, sized for a single paper column.
 - `all_metrics_per_seed.csv`, `figure1_per_seed.csv`, and `sources.json`: raw
   aggregate inputs, seed variation, and source hashes.
-- `sender/`: sample-level interventions, per-seed summaries, and the horizontal
-  version of the sender figure.
+- `sender/`: sample-level interventions and per-seed summaries.
 - `COMPLETE.json`: created only after all four tables and three figures succeed.
 
 The LaTeX fragments require `booktabs`, `graphicx`, and `xcolor`. New results may
@@ -103,23 +114,20 @@ change the scientific conclusion. Figure 2 preserves the preview's axis ranges
 when possible; if results exceed them, both panels expand with equal spans and
 record the change in `figure2_axes.json`.
 
-## Separate groups and interruption handling
+## Selecting runs and interruption handling
+
+All commands below are run from `code/`:
 
 ```bash
-python scripts/run_suite.py mnist --label paper-v3 --execute
-python scripts/run_suite.py nmnist --label paper-v3 --execute
-bash scripts/sender_commands.sh train paper-v3
+# Select a seed in one experiment (for independent GPU jobs).
+python main.py experiments/01_mnist.yaml --seed 34000 --label my-run
 
-# Optional: one seed within a group (useful for independent GPU jobs).
-python scripts/run_suite.py mnist --seed 34000 --label paper-v3 --execute
-```
+# Optional manual sender stages: finish prefixes before continuations.
+python main.py experiments/03_sender.yaml --stage prefix --label my-run
+python main.py experiments/03_sender.yaml --stage continuation --label my-run
 
-For sender jobs, complete the shared prefixes before their continuations:
-
-```bash
-python scripts/run_suite.py sender --stage prefix --label paper-v3 --execute
-python scripts/run_suite.py sender --stage continuation --label paper-v3 --execute
-bash scripts/sender_commands.sh analyze paper-v3
+# Rebuild only the sender figure from completed sender runs.
+python main.py experiments/03_sender.yaml --analyze --label my-run
 ```
 
 Completed runs are skipped only when their configuration hashes match. Existing

@@ -2,11 +2,14 @@
 All fixtures stay under tmp and are never paper evidence.
 """
 import copy,hashlib,json,shutil
+import sys
+from pathlib import Path
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]/"code"))
 import numpy as np
 import torch
 from torch.utils.data import DataLoader,TensorDataset
-from run_suite import settings,ROOT,HERE
-from chapter_results import build,derive,sender_column
+from modules.reproduction import settings,ROOT,HERE
+from modules.paper_results import build,derive,sender_column,build_sender
 import pandas as pd
 from modules.model_IO import construct_model
 from modules.training_helper import inspect_model
@@ -60,13 +63,27 @@ def main():
         else:raise AssertionError('Missing data accepted')
     finally:target.write_bytes(backup)
     sender_rows=[]
+    sender_logs=out/'sender_fixture_logs'
     for arm in ['adaptive_post','adaptive_pre']:
         path=ROOT/'tmp/doubly_reproduction/current_runtime_smoke'/f'mnist_common_e1_{arm}_unscaled_support_seed40500'/'sender_decision/epoch010/valid/native_interventions.csv'
         source=pd.read_csv(path)
+        # Expand the ten real synthetic diagnostic samples only to exercise the
+        # production CSV contract (four seeds, twenty samples per class).
+        expanded=pd.concat([source.assign(sample_index=source.sample_index+10*i) for i in range(20)],ignore_index=True)
+        for seed in range(40500,40504):
+            dest=sender_logs/'paper_doubly_sender'/f'mnist_common_e1_{arm}_unscaled_support_seed{seed}'/label/'sender_decision/epoch010/valid'
+            dest.mkdir(parents=True,exist_ok=True)
+            expanded.to_csv(dest/'native_interventions.csv',index=False)
+            info=json.loads(path.with_name('manifest.json').read_text())
+            info['sample_count']=200;info['settings']['samples_per_class']=20
+            (dest/'manifest.json').write_text(json.dumps(info))
         for variant,group in source.groupby('variant'):
             sender_rows.append(dict(arm=arm,variant=variant,accuracy_percent_mean=100*group.correct.mean()))
     sender_dir=out/'chapter/sender';sender_dir.mkdir(exist_ok=True)
-    pd.DataFrame(sender_rows).to_csv(sender_dir/'summary.csv',index=False)
+    build_sender(label,sender_dir,logs=sender_logs)
+    assert len(pd.read_csv(sender_dir/'raw.csv'))==6400
+    assert len(pd.read_csv(sender_dir/'per_seed.csv'))==32
+    assert len(pd.read_csv(sender_dir/'summary.csv'))==8
     sender_column(sender_dir,out/'chapter')
     report['main_table_count']=4;report['figure_count']=3
     (out/'report.json').write_text(json.dumps(report,indent=2));print(json.dumps(report,indent=2))

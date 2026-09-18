@@ -9,7 +9,6 @@ from torch.utils.tensorboard import SummaryWriter
 from modules.data_loader import get_processed_dataloaders
 from modules.experiment_helper import (
     get_experiment_text_metadata,
-    parse_experiment_settings,
     print_sub_exp_settings,
 )
 from modules.model_IO import (
@@ -22,7 +21,6 @@ from modules.project_paths import get_log_path, resolve_path_from_code
 from modules.utils import (
     DEFAULT_RANDOM_SEED,
     configure_runtime_threads,
-    countdown,
     set_global_seed,
 )
 
@@ -84,48 +82,58 @@ def execute_sub_exp(sub_exp_settings, repeat_all_subexp):
     return 1
 
 
-def main(experiment_path, repeat_all_subexp, waiting_time_before_retry, only_this_sub_exp=''):
-    experiment_path = resolve_path_from_code(experiment_path)
-    while True:
-        experiment_list = parse_experiment_settings(
-            experiment_path,
-            only_this_sub_exp=only_this_sub_exp,
-        )
-        if only_this_sub_exp and isinstance(experiment_list, dict):
-            experiment_list = [experiment_list]
-
-        executed_sub_exp = 0
-        for sub_exp_settings in experiment_list:
-            executed_sub_exp += execute_sub_exp(sub_exp_settings, repeat_all_subexp)
-
-        if repeat_all_subexp:
-            print('all experiments are done, nothing more to do!')
-            break
-
-        if executed_sub_exp == 0:
-            print('all experiments are done, nothing more to do!')
-            if waiting_time_before_retry == 0:
-                break
-            countdown(waiting_time_before_retry)
+def main():
+    parser = argparse.ArgumentParser(description='Train experiments and generate the Doubly chapter from one entry point.')
+    parser.add_argument('experiment_path', nargs='?', default='experiments',
+                        help='experiments (all), or experiments/01_mnist.yaml, 02_nmnist_t20.yaml, 03_sender.yaml')
+    parser.add_argument('--label', default='paper-v3')
+    actions = parser.add_mutually_exclusive_group()
+    actions.add_argument('--dry-run', action='store_true', help='Show selected runs without training or downloads.')
+    actions.add_argument('--analyze', action='store_true', help='Generate figures/tables from completed runs only.')
+    actions.add_argument('--check', action='store_true', help='Run CPU synthetic checks only.')
+    parser.add_argument('--seed', type=int, help='Select one seed within a single experiment.')
+    parser.add_argument('--stage', choices=['all','prefix','continuation'], default='all', help='Sender stages only.')
+    args = parser.parse_args()
+    import re
+    import subprocess
+    import sys
+    from modules.reproduction import settings, train, ROOT, FILES
+    if not re.fullmatch(r'[A-Za-z0-9_-]+',args.label):parser.error('Invalid run label')
+    path=resolve_path_from_code(args.experiment_path).resolve()
+    if path==(ROOT/'code/experiments').resolve():
+        group='all'
+    else:
+        matches=[g for g,f in FILES.items() if g!='structure' and path==(ROOT/'code/experiments'/f).resolve()]
+        if not matches:parser.error('Choose the experiments directory or one of its three YAML files.')
+        group=matches[0]
+    if group=='all' and args.seed is not None:parser.error('--seed requires one experiment file')
+    if group!='sender' and args.stage!='all':parser.error('--stage applies only to 03_sender.yaml')
+    if (args.analyze or args.check) and (args.seed is not None or args.stage!='all'):
+        parser.error('--seed/--stage apply to training and dry runs only')
+    if args.check:
+        for name,extra in [('validate.py',['--construct-models']),('smoke.py',[]),('artifact_smoke.py',[])]:
+            subprocess.run([sys.executable,str(ROOT/'tests'/name),*extra],check=True)
+        return
+    if args.analyze:
+        from modules.paper_results import generate_results
+        generate_results(args.label,sender_only=(group=='sender'))
+        return
+    rows=settings(group,args.label,args.stage,args.seed)
+    for row in rows:
+        print(row['sub_exp_name'],'epochs=',row['training_settings']['max_epoch'],flush=True)
+    if args.dry_run:
+        print(f'DRY RUN: {len(rows)} runs; no training, downloads, or job submission.')
+        return
+    if sys.platform=='win32':
+        parser.error('Use a Linux training host for formal runs; Windows supports --check, --dry-run, and --analyze.')
+    configure_runtime_threads()
+    train(rows,args.label,execute_sub_exp)
+    if group=='all' or (group=='sender' and args.seed is None and args.stage!='prefix'):
+        from modules.paper_results import generate_results
+        generate_results(args.label,sender_only=(group=='sender'))
+    else:
+        print('Selected training completed. After completing all experiments, run main.py experiments --analyze with the same label.')
 
 
 if __name__ == '__main__':
-    configure_runtime_threads()
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        'experiment_path',
-        help='name of the experiment setting, should match one of them file name in experiments folder'
-    )
-    parser.add_argument('-r', '--repeat_all_subexp', action='store_true')
-    parser.add_argument('-d', '--CUDA_VISIBLE_DEVICES', type=str, default='')
-    parser.add_argument('-w', '--waiting_time_before_retry', type=int, default=0)
-    parser.add_argument('--only-sub-exp', type=str, default='')
-    args = parser.parse_args()
-    if args.CUDA_VISIBLE_DEVICES:
-        os.environ['CUDA_VISIBLE_DEVICES'] = args.CUDA_VISIBLE_DEVICES
-    main(
-        args.experiment_path,
-        args.repeat_all_subexp,
-        args.waiting_time_before_retry,
-        args.only_sub_exp,
-    )
+    main()

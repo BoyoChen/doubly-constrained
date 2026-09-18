@@ -14,7 +14,7 @@ from modules.model_IO import construct_model, save_model
 from modules.model_trainer import apply_training_schedule
 from modules.sender_decision_study import parameter_fingerprint, log_sender_decision_study
 from modules.utils import move_to_device, set_global_seed
-from run_suite import settings
+from modules.reproduction import settings
 
 
 class Writer:

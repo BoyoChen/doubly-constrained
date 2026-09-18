@@ -5,11 +5,11 @@ import yaml
 HERE=Path(__file__).resolve().parent
 ROOT=HERE.parent
 sys.path.insert(0,str(ROOT/'code'))
-from run_suite import settings
+from modules.reproduction import settings
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--construct-models',action='store_true');a=p.parse_args()
-    coverage=json.loads((HERE/'coverage.json').read_text());report={'groups':{},'models':[],'full_training':False}
+    coverage=json.loads((ROOT/'code/coverage.json').read_text());report={'groups':{},'models':[],'full_training':False}
     for group,file in [('mnist','01_mnist.yaml'),('nmnist','02_nmnist_t20.yaml'),('sender','03_sender.yaml')]:
         raw=(ROOT/'code/experiments'/file).read_text(encoding='utf8');doc=yaml.safe_load(raw)
         assert list(doc)==['experiment_name','shared_settings','sub_experiments']
