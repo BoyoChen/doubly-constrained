@@ -73,7 +73,7 @@ remain separate from the code's MIT license; datasets are not redistributed here
 
 ## Experiments and outputs
 
-| Configuration under `code/experiments/doubly_icassp/` | Runs | Chapter coverage |
+| Configuration under `code/experiments/` | Runs | Chapter coverage |
 |---|---:|---|
 | `01_mnist.yaml` | 10 conditions × 4 seeds, 100 epochs | MNIST columns in Tables 1–2; Figure 1 and Table 3 |
 | `02_nmnist_t20.yaml` | 10 conditions × 4 seeds, 8 epochs | N-MNIST columns in Tables 1–2; Figure 2 and Table 4 |

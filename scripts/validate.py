@@ -11,7 +11,7 @@ def main():
     p=argparse.ArgumentParser();p.add_argument('--construct-models',action='store_true');a=p.parse_args()
     coverage=json.loads((HERE/'coverage.json').read_text());report={'groups':{},'models':[],'full_training':False}
     for group,file in [('mnist','01_mnist.yaml'),('nmnist','02_nmnist_t20.yaml'),('sender','03_sender.yaml')]:
-        raw=(ROOT/'code/experiments/doubly_icassp'/file).read_text(encoding='utf8');doc=yaml.safe_load(raw)
+        raw=(ROOT/'code/experiments'/file).read_text(encoding='utf8');doc=yaml.safe_load(raw)
         assert list(doc)==['experiment_name','shared_settings','sub_experiments']
         assert not any(isinstance(e,yaml.AliasEvent) or getattr(e,'anchor',None) for e in yaml.parse(raw))
         rows=settings(group,'check');assert len({r['sub_exp_name'] for r in rows})==len(rows)

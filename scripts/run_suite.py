@@ -20,7 +20,7 @@ FILES = {'mnist': '01_mnist.yaml', 'structure': '01_mnist.yaml',
 def settings(group, label, stage='all', seed=None):
     if group == 'all':
         return [r for g in ['mnist','nmnist','sender'] for r in settings(g,label,stage,seed)]
-    rows = parse_experiment_settings(ROOT / 'code/experiments/doubly_icassp' / FILES[group])
+    rows = parse_experiment_settings(ROOT / 'code/experiments' / FILES[group])
     selected = []
     for row in rows:
         structural = any(row['sub_exp_name'].startswith('mnist_'+c+'_seed') for c in

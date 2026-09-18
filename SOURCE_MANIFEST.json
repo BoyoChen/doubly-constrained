@@ -125,19 +125,19 @@
     },
     {
       "source": "code/experiments/doubly_icassp/01_mnist.yaml",
-      "destination": "code/experiments/doubly_icassp/01_mnist.yaml",
+      "destination": "code/experiments/01_mnist.yaml",
       "source_sha256": "8eb3c11af871938e8dd1b50f2e4c52671504e0076fc58da4e22608bb1e37bc27",
       "export_sha256": "79fac396d1c968be6cad68797f3ba9f486de3e63b77c656376afba03fbc953b0"
     },
     {
       "source": "code/experiments/doubly_icassp/02_nmnist_t20.yaml",
-      "destination": "code/experiments/doubly_icassp/02_nmnist_t20.yaml",
+      "destination": "code/experiments/02_nmnist_t20.yaml",
       "source_sha256": "66086fc6db64f546e71d841e78528e5c37314ad256f08d070e42399446b11e35",
       "export_sha256": "6b0e46e3f60b543278bacf466c986f17215e9e010b8c2310cbf2e191fd6ab1c4"
     },
     {
       "source": "code/experiments/doubly_icassp/03_sender.yaml",
-      "destination": "code/experiments/doubly_icassp/03_sender.yaml",
+      "destination": "code/experiments/03_sender.yaml",
       "source_sha256": "46dd83a5edbde7ffa3f38c55012b16a419919d19a8cbe7a4028383edf19f2b65",
       "export_sha256": "f9772441cf4a32a461a60f877ab0c8306e9d6d6d09433193161a1b4795564999"
     },
@@ -151,7 +151,7 @@
       "source": "paper/doubly_ICASSP/reproducibility/run_suite.py",
       "destination": "scripts/run_suite.py",
       "source_sha256": "319bb4a96e0bd76196b9512d65e38426f39688829cf0e9f8991e61beb7d6b871",
-      "export_sha256": "4edcaadabc491a9aa9bca61711e460013f3366e8cfb01eaec568fb800c00de5b"
+      "export_sha256": "f122d7c68d40a986c21a256a24b97b4021a61cb25aaa0dbbea92a48146933178"
     },
     {
       "source": "paper/doubly_ICASSP/reproducibility/chapter_results.py",
@@ -169,7 +169,7 @@
       "source": "paper/doubly_ICASSP/reproducibility/validate.py",
       "destination": "scripts/validate.py",
       "source_sha256": "5a63faaaa393629a6ccfe8c25dc1c1e9cd4012c0a593d4d0f8255431428b16b2",
-      "export_sha256": "0574b5793bedca9dbe52f4bdb351870e41b444ceb0d624354eebb74b182a6db0"
+      "export_sha256": "5869b81fba9a3b62f823f267cb75d165a1b638d39e8ace0297cc1c6d96cc180e"
     },
     {
       "source": "paper/doubly_ICASSP/reproducibility/smoke.py",
