@@ -214,7 +214,7 @@ def sender_column(source,out):
     fig.tight_layout();save(fig,out/'figure3')
 
 def generate_results(sender_only=False):
-    out=ROOT/'output/doubly_reproduction/chapter'
+    out=ROOT/'result'
     out.mkdir(parents=True,exist_ok=True)
     complete=out/'COMPLETE.json'
     if complete.exists():complete.unlink()

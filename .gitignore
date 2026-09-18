@@ -1,7 +1,7 @@
 data/
 logs/
 saved_models/
-output/
+result/
 tmp/
 __pycache__/
 *.py[cod]
