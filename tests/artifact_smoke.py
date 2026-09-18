@@ -24,9 +24,9 @@ class Writer:
 def main():
     torch.set_num_threads(2)
     out=ROOT/'tmp/doubly_reproduction/artifact_smoke';out.mkdir(parents=True,exist_ok=True)
-    label='SYNTHETIC-NOT-RESULTS';report={'synthetic_only':True,'datasets':{}}
+    report={'synthetic_only':True,'datasets':{}}
     for ds in ['mnist','nmnist']:
-        rows=settings(ds,label);r=rows[0]
+        rows=settings(ds);r=rows[0]
         model=move_to_device(construct_model(copy.deepcopy(r['model']),run_seed=r['seed']),torch.device('cpu'))
         model.device=torch.device('cpu')
         # Exercise active as well as silent root neurons, with synthetic inputs only.
@@ -48,17 +48,17 @@ def main():
         assert np.isclose(metrics['accuracy'],100*((pred==labels)&decision).mean())
         report['datasets'][ds]={'receivers':len(rates),'singular_values':len(sv),'metrics':metrics}
         for row in rows:
-            dest=out/'logs'/row['experiment_name']/row['sub_exp_name']/label
+            dest=out/'logs'/row['experiment_name']/row['sub_exp_name']
             shutil.copytree(art,dest/'mechanism_artifacts',dirs_exist_ok=True)
             digest=hashlib.sha256(json.dumps(row,sort_keys=True).encode()).hexdigest()
             (dest/'reproduction_complete.json').write_text(json.dumps({'settings_sha256':digest,'synthetic_only':True}))
-    frame=build(label,out/'chapter',out/'logs');assert len(frame)==80
+    frame=build(out/'chapter',out/'logs');assert len(frame)==80
     assert all((out/'chapter'/f'table{i}.csv').is_file() for i in range(1,5))
     # Missing artifacts must fail rather than substituting historical data.
-    row=settings('mnist',label)[0];epoch=row['training_settings']['max_epoch'];target=out/'logs'/row['experiment_name']/row['sub_exp_name']/label/f'mechanism_artifacts/root_weight_epoch{epoch:03d}.npz'
+    row=settings('mnist')[0];epoch=row['training_settings']['max_epoch'];target=out/'logs'/row['experiment_name']/row['sub_exp_name']/f'mechanism_artifacts/root_weight_epoch{epoch:03d}.npz'
     backup=target.read_bytes();target.unlink()
     try:
-        try:build(label,out/'missing_check',out/'logs')
+        try:build(out/'missing_check',out/'logs')
         except FileNotFoundError:report['missing_data_rejected']=True
         else:raise AssertionError('Missing data accepted')
     finally:target.write_bytes(backup)
@@ -71,7 +71,7 @@ def main():
         # production CSV contract (four seeds, twenty samples per class).
         expanded=pd.concat([source.assign(sample_index=source.sample_index+10*i) for i in range(20)],ignore_index=True)
         for seed in range(40500,40504):
-            dest=sender_logs/'paper_doubly_sender'/f'mnist_common_e1_{arm}_unscaled_support_seed{seed}'/label/'sender_decision/epoch020/valid'
+            dest=sender_logs/'paper_doubly_sender'/f'mnist_common_e1_{arm}_unscaled_support_seed{seed}'/'sender_decision/epoch020/valid'
             dest.mkdir(parents=True,exist_ok=True)
             expanded.to_csv(dest/'native_interventions.csv',index=False)
             info=json.loads(path.with_name('manifest.json').read_text())
@@ -80,7 +80,7 @@ def main():
         for variant,group in source.groupby('variant'):
             sender_rows.append(dict(arm=arm,variant=variant,accuracy_percent_mean=100*group.correct.mean()))
     sender_dir=out/'chapter/sender';sender_dir.mkdir(exist_ok=True)
-    build_sender(label,sender_dir,logs=sender_logs)
+    build_sender(sender_dir,logs=sender_logs)
     assert len(pd.read_csv(sender_dir/'raw.csv'))==6400
     assert len(pd.read_csv(sender_dir/'per_seed.csv'))==32
     assert len(pd.read_csv(sender_dir/'summary.csv'))==8

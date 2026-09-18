@@ -83,7 +83,7 @@ are indexed by learning updates, not epochs.
 | Figure 2, Table 4 | Correct/wrong earliness, gap, no-decision and accuracy | N-MNIST test set |
 | Figure 3 | Sender removal and attenuation | 200 validation samples per seed |
 
-Results are saved to `output/doubly_reproduction/<label>/chapter/` as CSV, LaTeX,
+Results are saved to `output/doubly_reproduction/chapter/` as CSV, LaTeX,
 PDF, SVG and PNG.
 
 ### Reported metrics

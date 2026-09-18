@@ -16,9 +16,9 @@ FILES = {'mnist': '01_mnist.yaml', 'structure': '01_mnist.yaml',
          'nmnist': '02_nmnist_t20.yaml', 'sender': '03_sender.yaml'}
 
 
-def settings(group, label, stage='all', seed=None):
+def settings(group, stage='all', seed=None):
     if group == 'all':
-        return [r for g in ['mnist','nmnist','sender'] for r in settings(g,label,stage,seed)]
+        return [r for g in ['mnist','nmnist','sender'] for r in settings(g,stage,seed)]
     rows = parse_experiment_settings(ROOT / 'code/experiments' / FILES[group])
     selected = []
     for row in rows:
@@ -35,7 +35,7 @@ def settings(group, label, stage='all', seed=None):
         row = copy.deepcopy(row)
         if group == 'sender' and not prefix:
             checkpoint = ROOT / 'saved_models/paper_doubly_sender' / (
-                f"mnist_shared_prefix_e1_seed{row['seed']}") / f'{label}.pickle'
+                f"mnist_shared_prefix_e1_seed{row['seed']}.pickle")
             row['model']['load_from'] = {'path': str(checkpoint)}
         selected.append(row)
     if not selected:
@@ -43,24 +43,24 @@ def settings(group, label, stage='all', seed=None):
     return selected
 
 
-def train(rows, label, execute_sub_exp):
-    os.environ['BOYONET_COMMIT_LABEL'] = label
+def train(rows, execute_sub_exp):
+    os.environ.pop('BOYONET_COMMIT_LABEL', None)
     from modules.utils import configure_runtime_threads
     configure_runtime_threads()
     for row in rows:
-        log = ROOT / 'logs' / row['experiment_name'] / row['sub_exp_name'] / label
+        log = ROOT / 'logs' / row['experiment_name'] / row['sub_exp_name']
         marker = log / 'reproduction_complete.json'
         digest = hashlib.sha256(json.dumps(row, sort_keys=True).encode()).hexdigest()
-        checkpoint_out = ROOT/'saved_models'/row['experiment_name']/row['sub_exp_name']/f'{label}.pickle'
+        checkpoint_out = ROOT/'saved_models'/row['experiment_name']/f"{row['sub_exp_name']}.pickle"
         if marker.exists():
             if json.loads(marker.read_text())['settings_sha256'] != digest:
-                raise RuntimeError(f'Completed settings changed; use a new label: {log}')
+                raise RuntimeError(f'Completed settings changed; remove or archive the stale run: {log}')
             if row['training_settings'].get('save_final_model') and not checkpoint_out.is_file():
                 raise RuntimeError(f'Completed run is missing its final checkpoint: {checkpoint_out}')
             print('Completed, skipping:', row['sub_exp_name'])
             continue
         if log.exists():
-            raise RuntimeError(f'Incomplete/existing run directory; inspect it and use a new label: {log}')
+            raise RuntimeError(f'Incomplete/existing run directory; inspect or remove it: {log}')
         source = row['model'].get('load_from', {}).get('path')
         if source and not Path(source).is_file():
             raise FileNotFoundError(f'Run the shared prefix first: {source}')

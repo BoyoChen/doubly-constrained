@@ -38,7 +38,7 @@ def main():
     report={'synthetic_only':True,'full_training_executed':False,'update_checks':[], 'sender_checks':[]}
     seen=set();checkpoint=out/'shared_prefix'
     for group in ['mnist','nmnist','sender']:
-        for row in settings(group,'smoke'):
+        for row in settings(group):
             base=row['sub_exp_name'].rsplit('_seed',1)[0]
             if base in seen or 'load_from' in row['model']:continue
             seen.add(base);print('Two-update smoke:',base,flush=True)
@@ -58,7 +58,7 @@ def main():
                     save_model(model,checkpoint)
             report['update_checks'].append(base)
             del model;gc.collect()
-    for row in settings('sender','smoke',stage='continuation',seed=40500):
+    for row in settings('sender',stage='continuation',seed=40500):
         name=row['sub_exp_name'];print('Checkpoint/continuation/intervention smoke:',name,flush=True)
         model=move_to_device(construct_model({'load_from':{'path':str(checkpoint.with_suffix('.pickle'))}},run_seed=40500),torch.device('cpu'))
         model.device=torch.device('cpu')

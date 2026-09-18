@@ -20,7 +20,7 @@ def validate_run_manifest(info):
         raise ValueError('Unexpected sender sampling/removal settings in run manifest.')
 
 
-def build_sender(label, out, logs=None):
+def build_sender(out, logs=None):
     logs = ROOT/'logs' if logs is None else logs
     out = out.resolve()
     if not out.is_relative_to(ROOT):
@@ -31,7 +31,7 @@ def build_sender(label, out, logs=None):
     for arm in ['adaptive_post', 'adaptive_pre']:
         for seed in range(40500, 40504):
             name = f'mnist_common_e1_{arm}_unscaled_support_seed{seed}'
-            src = logs/'paper_doubly_sender'/name/label/'sender_decision/epoch020/valid/native_interventions.csv'
+            src = logs/'paper_doubly_sender'/name/'sender_decision/epoch020/valid/native_interventions.csv'
             info_path=src.with_name('manifest.json')
             info=json.loads(info_path.read_text(encoding='utf-8'))
             validate_run_manifest(info)
@@ -100,12 +100,12 @@ def derive(decisions,activity,weight,singular_values=None):
     if not all(np.isfinite(v) for v in metrics.values()):raise ValueError('Nonfinite result')
     return {k:float(v) for k,v in metrics.items()},rates,sv
 
-def build(label,out,logs):
+def build(out,logs):
     spec=json.loads((HERE/'coverage.json').read_text());sources=[];records=[];curves={};spectra={}
     for dataset,ds in spec['datasets'].items():
-        for row in settings(dataset,label):
+        for row in settings(dataset):
             condition=row['sub_exp_name'].rsplit('_seed',1)[0][len(dataset)+1:]
-            folder=logs/row['experiment_name']/row['sub_exp_name']/label
+            folder=logs/row['experiment_name']/row['sub_exp_name']
             marker=folder/'reproduction_complete.json'
             expected=hashlib.sha256(json.dumps(row,sort_keys=True).encode()).hexdigest()
             if json.loads(marker.read_text())['settings_sha256']!=expected:raise ValueError(f'Settings mismatch: {folder}')
@@ -213,20 +213,20 @@ def sender_column(source,out):
         for x,y in enumerate(values):ax.text(x,y+2,f'{y:.2f}',ha='center',fontsize=7)
     fig.tight_layout();save(fig,out/'figure3')
 
-def generate_results(label, sender_only=False):
-    out=ROOT/'output/doubly_reproduction'/label/'chapter'
+def generate_results(sender_only=False):
+    out=ROOT/'output/doubly_reproduction/chapter'
     out.mkdir(parents=True,exist_ok=True)
     complete=out/'COMPLETE.json'
     if complete.exists():complete.unlink()
     if not sender_only:
-        build(label,out,ROOT/'logs')
-    for row in settings('sender',label):
-        marker=ROOT/'logs'/row['experiment_name']/row['sub_exp_name']/label/'reproduction_complete.json'
+        build(out,ROOT/'logs')
+    for row in settings('sender'):
+        marker=ROOT/'logs'/row['experiment_name']/row['sub_exp_name']/'reproduction_complete.json'
         expected=hashlib.sha256(json.dumps(row,sort_keys=True).encode()).hexdigest()
         if json.loads(marker.read_text())['settings_sha256']!=expected:
             raise ValueError(f'Sender settings mismatch: {marker}')
-    build_sender(label,out/'sender')
+    build_sender(out/'sender')
     sender_column(out/'sender',out)
     if not sender_only:
-        complete.write_text(json.dumps({'label':label,'tables':4,'figures':3,'historical_fallback':False},indent=2))
+        complete.write_text(json.dumps({'tables':4,'figures':3,'historical_fallback':False},indent=2))
     print('Results:',out)
