@@ -199,7 +199,7 @@ def figure1(out,curves,units,mean):
         line,=ax_b.plot(np.arange(1,len(sv)+1),np.cumsum(sv)/sv.sum(),color=color,
                         linestyle=dash,linewidth=width,solid_capstyle='round',
                         dash_capstyle='round')
-        handles.append((line,f"{label}  ({mean.loc[('mnist',c),'effective_rank']:.0f})"))
+        handles.append((line,f"{label}  (rank {mean.loc[('mnist',c),'effective_rank']:.0f})"))
     style(ax_b);ax_b.grid(True,color=grid,linewidth=.35)
     ax_b.set_xscale('log');ax_b.set_xlim(1,len(sv));ax_b.minorticks_off()
     ticks=[x for x in (1,2,5,10,20,50,100,200) if x<=len(sv)]
