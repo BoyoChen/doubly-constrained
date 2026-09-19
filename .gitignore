@@ -8,8 +8,8 @@ result/*
 !result/table1.csv
 !result/table2.csv
 !result/table3.csv
-!result/table4.csv
 tmp/
+CLAUDE_HANDOFF.md
 __pycache__/
 *.py[cod]
 .venv/
