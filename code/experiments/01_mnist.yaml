@@ -142,6 +142,225 @@ sub_experiments:
           no_skip_links: true
           non_negative_weights: false
           normalize_settings:
+            dim_0_freq: 0
+            dim_1_freq: 0
+            freq_diff: 0
+            norm_p: 1
+            out_weight_len: 1
+            use_shape_ratio: true
+            dim_1_mode: per_sender
+            dim_0_freq_by_cortex:
+              A: 0
+              A-1: 0
+            dim_1_freq_by_cortex:
+              A: 0
+              A-1: 0
+        lateral_inhibition:
+          factor: 3.0
+          power: 1.0
+        top_k: 4
+      neuron_vectors_spec:
+        potential_decay_rate: 1.0
+        reset_state: 0
+        resting_length: 999
+        threshold_settings:
+          homeostasis_ema_decay: 0.0
+          log_thresholds_delta: 0.00125
+          lower_bound: 0.1
+          upper_bound: 10.0
+          target_mean_first_spike_factor_by_cortex:
+            A: 0.075
+      spike_trace_settings:
+        balanced_spike_trace: true
+        spike_decay_rate: 0.66
+    image_encoder_spec:
+      encoder: rank_order
+      simulation_time: 40
+      end_score_search_steps: 16
+    init_cortex:
+      fix_shape: true
+      input_channel: 6
+      kernel_size: 28
+      output_channel: 10
+      stride: 4
+      init_amplifier: 1
+      competition_group_N: 20
+      pooling_settings:
+        mode: max
+        kernel_size: global
+      subcortexs:
+      - fix_shape: true
+        input_channel: 6
+        kernel_size: 10
+        output_channel: 300
+        stride: 2
+        pooling_settings:
+          mode: max
+          kernel_size: 2
+    remember_settings:
+      STDP_mechanism:
+        label_usage: signed_ltp
+        label_propagating: false
+        hinge_softmax_label:
+          margin: 0.3
+          label_scope: class_aggregate
+          positive_scale: 40.0
+          negative_scale: 120.0
+          wrong_background_value: 0.0
+          softmax_temperature: 0.25
+          correct_background_value: 0.0
+      self_cleaning_after_STDP: false
+  sub_exp_name: mnist_none_all_layers
+  seed:
+  - 34000
+  - 34001
+  - 34002
+  - 34003
+  description:
+    subexp: 'No normalization at any layer: neither the hidden layer A-1 nor the output layer
+      A is normalized in any update. Completes the all-layer schedule comparison as the unconstrained
+      reference; differs from ex872 `none`, which still normalizes A-1 (post).'
+- data:
+    dataset_name: MNIST
+    batch_size: 200
+    label_perm: false
+    use_DoG: true
+    cache_transforms: true
+    cache_dtype: float32
+    DoG_settings:
+      on_off_rate: 1.0
+      normalize: true
+      kernel_specs:
+      - kernel_size: 3
+        sigma_center: 0.3333333333333333
+        sigma_surround: 0.6666666666666666
+      - kernel_size: 3
+        sigma_center: 0.6666666666666666
+        sigma_surround: 0.3333333333333333
+      - kernel_size: 7
+        sigma_center: 0.7777777777777778
+        sigma_surround: 1.5555555555555556
+      - kernel_size: 7
+        sigma_center: 1.5555555555555556
+        sigma_surround: 0.7777777777777778
+      - kernel_size: 13
+        sigma_center: 1.4444444444444444
+        sigma_surround: 2.888888888888889
+      - kernel_size: 13
+        sigma_center: 2.888888888888889
+        sigma_surround: 1.4444444444444444
+  training_settings:
+    max_epoch: 20
+    min_epoch: 0
+    sleep_freq: 99999
+    evaluate_freq: 2
+    STDP_interval: 1
+    stdp_update_mode: two_pass_decision_contingent
+    simulation_forward_mode: streaming
+    save_best_model: false
+    evaluation_level: 3
+    evaluation_phases:
+    - valid
+    - test
+    final_evaluation_phases:
+    - valid
+    - test
+    training_schedule:
+      enabled: true
+      stages:
+      - start_epoch: 2
+        frozen_cortex_ids:
+        - A-1
+    diagnostic_settings:
+      readout: false
+      ablation_chart: false
+      singular_value_spectrum: false
+      top_maps_plot: false
+      confusion_matrix: true
+      cortex_statistics: true
+      sample_activity_images: false
+      temporal_sample_metrics: true
+      sample_activity_phases:
+      - valid
+      - test
+      hinge_temporal_metrics: true
+      hinge_temporal_phases:
+      - valid
+      - test
+      gpu_usage: true
+      model_shape: false
+      kernel_heatmaps: false
+      readout_fusion: false
+      readout_error_overlap: false
+      threshold_distribution: true
+      per_neuron_activity: true
+      per_neuron_activity_phases:
+      - valid
+      - test
+      per_neuron_activity_max_batches: 30
+      training_invariant_audit:
+        cortex_ids:
+        - A-1
+        - A
+        root_cortex_id: A
+        audit_root_direct: true
+        audit_root_branch: false
+      normalization_mechanism_artifacts: true
+      normalization_mechanism_trajectory_epochs:
+      - 20
+      normalization_mechanism_trajectory_phases:
+      - test
+      normalization_mechanism_artifact_micro_batch_size: 20
+      normalization_mechanism_save_full_weight: true
+      normalization_mechanism_full_weight_epochs:
+      - 20
+    readout_params:
+      weight_decay: 0.0001
+      optimizer: lbfgs
+      max_iter: 200
+      lr: 0.001
+      epochs: 0
+    save_final_model: false
+    evaluation_micro_batch_size: 200
+  model:
+    first_spike_delay_factor: null
+    mean_spike_delay_factor: null
+    target_mean_earliness:
+      min_target_earliness: 0.03625
+      max_target_earliness: 0.03625
+    cortex_spec:
+      PCA_cortex_settings:
+        PCA_settings:
+          leave_out_num: 2
+          method: PCA
+          normalizing: true
+          remained_variance: 1
+          transpose: false
+        new_cortex_split_ratio: 1
+        refund_with_amplifier: true
+        regularize_afterward: false
+        split_only_tail: true
+        weight_refund: true
+      STDP_cortex_settings:
+        init_D_P_rate_ratio: 0.7
+        init_P_rate: 1.0e-06
+        learning_rate_decrease_base: 0
+      base_cortex_settings:
+        amplifier_settings:
+          log_amplifier_delta: 6.25e-06
+          lower_bound: 1.0e-05
+          upper_bound: 999999999
+          log_amplifier_delta_by_cortex:
+            A: 1.25e-06
+          target_mean_first_spike_earliness_by_cortex:
+            A: 0.38
+        kernel_settings:
+          init_mean: 0.8
+          init_std: 0.05
+          minimal_weight: 5.5e-05
+          no_skip_links: true
+          non_negative_weights: false
+          normalize_settings:
             dim_0_freq: 1
             dim_1_freq: 0
             freq_diff: 0
@@ -369,7 +588,7 @@ sub_experiments:
             dim_1_mode: per_sender
             dim_0_freq_by_cortex:
               A: 2
-              A-1: 1
+              A-1: 2
             dim_1_freq_by_cortex:
               A: 0
               A-1: 0
@@ -428,233 +647,17 @@ sub_experiments:
           softmax_temperature: 0.25
           correct_background_value: 0.0
       self_cleaning_after_STDP: false
-  sub_exp_name: mnist_post_half
+  sub_exp_name: mnist_post_half_all_layers
   seed:
   - 34000
   - 34001
   - 34002
   - 34003
   description:
-    subexp: Post every other batch; output-only schedule unless explicitly hidden_only/all_layers;
-      matched dataset base.
-- data:
-    dataset_name: MNIST
-    batch_size: 200
-    label_perm: false
-    use_DoG: true
-    cache_transforms: true
-    cache_dtype: float32
-    DoG_settings:
-      on_off_rate: 1.0
-      normalize: true
-      kernel_specs:
-      - kernel_size: 3
-        sigma_center: 0.3333333333333333
-        sigma_surround: 0.6666666666666666
-      - kernel_size: 3
-        sigma_center: 0.6666666666666666
-        sigma_surround: 0.3333333333333333
-      - kernel_size: 7
-        sigma_center: 0.7777777777777778
-        sigma_surround: 1.5555555555555556
-      - kernel_size: 7
-        sigma_center: 1.5555555555555556
-        sigma_surround: 0.7777777777777778
-      - kernel_size: 13
-        sigma_center: 1.4444444444444444
-        sigma_surround: 2.888888888888889
-      - kernel_size: 13
-        sigma_center: 2.888888888888889
-        sigma_surround: 1.4444444444444444
-  training_settings:
-    max_epoch: 20
-    min_epoch: 0
-    sleep_freq: 99999
-    evaluate_freq: 2
-    STDP_interval: 1
-    stdp_update_mode: two_pass_decision_contingent
-    simulation_forward_mode: streaming
-    save_best_model: false
-    evaluation_level: 3
-    evaluation_phases:
-    - valid
-    - test
-    final_evaluation_phases:
-    - valid
-    - test
-    training_schedule:
-      enabled: true
-      stages:
-      - start_epoch: 2
-        frozen_cortex_ids:
-        - A-1
-    diagnostic_settings:
-      readout: false
-      ablation_chart: false
-      singular_value_spectrum: false
-      top_maps_plot: false
-      confusion_matrix: true
-      cortex_statistics: true
-      sample_activity_images: false
-      temporal_sample_metrics: true
-      sample_activity_phases:
-      - valid
-      - test
-      hinge_temporal_metrics: true
-      hinge_temporal_phases:
-      - valid
-      - test
-      gpu_usage: true
-      model_shape: false
-      kernel_heatmaps: false
-      readout_fusion: false
-      readout_error_overlap: false
-      threshold_distribution: true
-      per_neuron_activity: true
-      per_neuron_activity_phases:
-      - valid
-      - test
-      per_neuron_activity_max_batches: 30
-      training_invariant_audit:
-        cortex_ids:
-        - A-1
-        - A
-        root_cortex_id: A
-        audit_root_direct: true
-        audit_root_branch: false
-      normalization_mechanism_artifacts: true
-      normalization_mechanism_trajectory_epochs:
-      - 20
-      normalization_mechanism_trajectory_phases:
-      - test
-      normalization_mechanism_artifact_micro_batch_size: 20
-      normalization_mechanism_save_full_weight: true
-      normalization_mechanism_full_weight_epochs:
-      - 20
-    readout_params:
-      weight_decay: 0.0001
-      optimizer: lbfgs
-      max_iter: 200
-      lr: 0.001
-      epochs: 0
-    save_final_model: false
-    evaluation_micro_batch_size: 200
-  model:
-    first_spike_delay_factor: null
-    mean_spike_delay_factor: null
-    target_mean_earliness:
-      min_target_earliness: 0.03625
-      max_target_earliness: 0.03625
-    cortex_spec:
-      PCA_cortex_settings:
-        PCA_settings:
-          leave_out_num: 2
-          method: PCA
-          normalizing: true
-          remained_variance: 1
-          transpose: false
-        new_cortex_split_ratio: 1
-        refund_with_amplifier: true
-        regularize_afterward: false
-        split_only_tail: true
-        weight_refund: true
-      STDP_cortex_settings:
-        init_D_P_rate_ratio: 0.7
-        init_P_rate: 1.0e-06
-        learning_rate_decrease_base: 0
-      base_cortex_settings:
-        amplifier_settings:
-          log_amplifier_delta: 6.25e-06
-          lower_bound: 1.0e-05
-          upper_bound: 999999999
-          log_amplifier_delta_by_cortex:
-            A: 1.25e-06
-          target_mean_first_spike_earliness_by_cortex:
-            A: 0.38
-        kernel_settings:
-          init_mean: 0.8
-          init_std: 0.05
-          minimal_weight: 5.5e-05
-          no_skip_links: true
-          non_negative_weights: false
-          normalize_settings:
-            dim_0_freq: 0
-            dim_1_freq: 0
-            freq_diff: 0
-            norm_p: 1
-            out_weight_len: 1
-            use_shape_ratio: true
-            dim_1_mode: per_sender
-            dim_0_freq_by_cortex:
-              A: 0
-              A-1: 1
-            dim_1_freq_by_cortex:
-              A: 0
-              A-1: 0
-        lateral_inhibition:
-          factor: 3.0
-          power: 1.0
-        top_k: 4
-      neuron_vectors_spec:
-        potential_decay_rate: 1.0
-        reset_state: 0
-        resting_length: 999
-        threshold_settings:
-          homeostasis_ema_decay: 0.0
-          log_thresholds_delta: 0.00125
-          lower_bound: 0.1
-          upper_bound: 10.0
-          target_mean_first_spike_factor_by_cortex:
-            A: 0.075
-      spike_trace_settings:
-        balanced_spike_trace: true
-        spike_decay_rate: 0.66
-    image_encoder_spec:
-      encoder: rank_order
-      simulation_time: 40
-      end_score_search_steps: 16
-    init_cortex:
-      fix_shape: true
-      input_channel: 6
-      kernel_size: 28
-      output_channel: 10
-      stride: 4
-      init_amplifier: 1
-      competition_group_N: 20
-      pooling_settings:
-        mode: max
-        kernel_size: global
-      subcortexs:
-      - fix_shape: true
-        input_channel: 6
-        kernel_size: 10
-        output_channel: 300
-        stride: 2
-        pooling_settings:
-          mode: max
-          kernel_size: 2
-    remember_settings:
-      STDP_mechanism:
-        label_usage: signed_ltp
-        label_propagating: false
-        hinge_softmax_label:
-          margin: 0.3
-          label_scope: class_aggregate
-          positive_scale: 40.0
-          negative_scale: 120.0
-          wrong_background_value: 0.0
-          softmax_temperature: 0.25
-          correct_background_value: 0.0
-      self_cleaning_after_STDP: false
-  sub_exp_name: mnist_none
-  seed:
-  - 34000
-  - 34001
-  - 34002
-  - 34003
-  description:
-    subexp: None; output-only schedule unless explicitly hidden_only/all_layers; matched
-      dataset base.
+    subexp: Postsynaptic (per-receiver) normalization on every other update, in both the hidden
+      layer A-1 and the output layer A; no presynaptic normalization anywhere. Half-frequency
+      control for all-layer Post. Differs from ex872 `post_half`, which keeps A-1 on post
+      every update.
 - data:
     dataset_name: MNIST
     batch_size: 200
@@ -805,10 +808,10 @@ sub_experiments:
             dim_1_mode: per_sender
             dim_0_freq_by_cortex:
               A: 0
-              A-1: 1
+              A-1: 0
             dim_1_freq_by_cortex:
               A: 1
-              A-1: 0
+              A-1: 1
         lateral_inhibition:
           factor: 3.0
           power: 1.0
@@ -864,15 +867,17 @@ sub_experiments:
           softmax_temperature: 0.25
           correct_background_value: 0.0
       self_cleaning_after_STDP: false
-  sub_exp_name: mnist_pre_every
+  sub_exp_name: mnist_pre_all_layers
   seed:
   - 34000
   - 34001
   - 34002
   - 34003
   description:
-    subexp: Pre every batch; output-only schedule unless explicitly hidden_only/all_layers;
-      matched dataset base.
+    subexp: Presynaptic (per-sender) normalization only, applied at every update in both the
+      hidden layer A-1 and the output layer A; no postsynaptic normalization anywhere. Frequency-matched
+      to all-layer Post and all-layer Doubly at one normalization operation per batch; differs
+      from ex872 `pre_every`, which keeps A-1 on post.
 - data:
     dataset_name: MNIST
     batch_size: 200
@@ -1023,10 +1028,10 @@ sub_experiments:
             dim_1_mode: per_sender
             dim_0_freq_by_cortex:
               A: 0
-              A-1: 1
+              A-1: 0
             dim_1_freq_by_cortex:
               A: 2
-              A-1: 0
+              A-1: 2
         lateral_inhibition:
           factor: 3.0
           power: 1.0
@@ -1082,15 +1087,18 @@ sub_experiments:
           softmax_temperature: 0.25
           correct_background_value: 0.0
       self_cleaning_after_STDP: false
-  sub_exp_name: mnist_pre_half
+  sub_exp_name: mnist_pre_half_all_layers
   seed:
   - 34000
   - 34001
   - 34002
   - 34003
   description:
-    subexp: Pre every other batch; output-only schedule unless explicitly hidden_only/all_layers;
-      matched dataset base.
+    subexp: Presynaptic (per-sender) normalization on every other update, in both the hidden
+      layer A-1 and the output layer A; no postsynaptic normalization anywhere. Half-frequency
+      control for all-layer Pre, so the schedule comparison can separate constraint direction
+      from how often the constraint is applied. Differs from ex872 `pre_half`, which keeps
+      A-1 on post.
 - data:
     dataset_name: MNIST
     batch_size: 200
@@ -1241,10 +1249,10 @@ sub_experiments:
             dim_1_mode: per_sender
             dim_0_freq_by_cortex:
               A: 2
-              A-1: 1
+              A-1: 2
             dim_1_freq_by_cortex:
               A: 2
-              A-1: 0
+              A-1: 2
         lateral_inhibition:
           factor: 3.0
           power: 1.0
@@ -1300,451 +1308,15 @@ sub_experiments:
           softmax_temperature: 0.25
           correct_background_value: 0.0
       self_cleaning_after_STDP: false
-  sub_exp_name: mnist_alternating
+  sub_exp_name: mnist_all_layers
   seed:
   - 34000
   - 34001
   - 34002
   - 34003
   description:
-    subexp: Doubly alternating; output-only schedule unless explicitly hidden_only/all_layers;
+    subexp: Doubly all layers; output-only schedule unless explicitly hidden_only/all_layers;
       matched dataset base.
-- data:
-    dataset_name: MNIST
-    batch_size: 200
-    label_perm: false
-    use_DoG: true
-    cache_transforms: true
-    cache_dtype: float32
-    DoG_settings:
-      on_off_rate: 1.0
-      normalize: true
-      kernel_specs:
-      - kernel_size: 3
-        sigma_center: 0.3333333333333333
-        sigma_surround: 0.6666666666666666
-      - kernel_size: 3
-        sigma_center: 0.6666666666666666
-        sigma_surround: 0.3333333333333333
-      - kernel_size: 7
-        sigma_center: 0.7777777777777778
-        sigma_surround: 1.5555555555555556
-      - kernel_size: 7
-        sigma_center: 1.5555555555555556
-        sigma_surround: 0.7777777777777778
-      - kernel_size: 13
-        sigma_center: 1.4444444444444444
-        sigma_surround: 2.888888888888889
-      - kernel_size: 13
-        sigma_center: 2.888888888888889
-        sigma_surround: 1.4444444444444444
-  training_settings:
-    max_epoch: 20
-    min_epoch: 0
-    sleep_freq: 99999
-    evaluate_freq: 2
-    STDP_interval: 1
-    stdp_update_mode: two_pass_decision_contingent
-    simulation_forward_mode: streaming
-    save_best_model: false
-    evaluation_level: 3
-    evaluation_phases:
-    - valid
-    - test
-    final_evaluation_phases:
-    - valid
-    - test
-    training_schedule:
-      enabled: true
-      stages:
-      - start_epoch: 2
-        frozen_cortex_ids:
-        - A-1
-    diagnostic_settings:
-      readout: false
-      ablation_chart: false
-      singular_value_spectrum: false
-      top_maps_plot: false
-      confusion_matrix: true
-      cortex_statistics: true
-      sample_activity_images: false
-      temporal_sample_metrics: true
-      sample_activity_phases:
-      - valid
-      - test
-      hinge_temporal_metrics: true
-      hinge_temporal_phases:
-      - valid
-      - test
-      gpu_usage: true
-      model_shape: false
-      kernel_heatmaps: false
-      readout_fusion: false
-      readout_error_overlap: false
-      threshold_distribution: true
-      per_neuron_activity: true
-      per_neuron_activity_phases:
-      - valid
-      - test
-      per_neuron_activity_max_batches: 30
-      training_invariant_audit:
-        cortex_ids:
-        - A-1
-        - A
-        root_cortex_id: A
-        audit_root_direct: true
-        audit_root_branch: false
-      normalization_mechanism_artifacts: true
-      normalization_mechanism_trajectory_epochs:
-      - 20
-      normalization_mechanism_trajectory_phases:
-      - test
-      normalization_mechanism_artifact_micro_batch_size: 20
-      normalization_mechanism_save_full_weight: true
-      normalization_mechanism_full_weight_epochs:
-      - 20
-    readout_params:
-      weight_decay: 0.0001
-      optimizer: lbfgs
-      max_iter: 200
-      lr: 0.001
-      epochs: 0
-    save_final_model: false
-    evaluation_micro_batch_size: 200
-  model:
-    first_spike_delay_factor: null
-    mean_spike_delay_factor: null
-    target_mean_earliness:
-      min_target_earliness: 0.03625
-      max_target_earliness: 0.03625
-    cortex_spec:
-      PCA_cortex_settings:
-        PCA_settings:
-          leave_out_num: 2
-          method: PCA
-          normalizing: true
-          remained_variance: 1
-          transpose: false
-        new_cortex_split_ratio: 1
-        refund_with_amplifier: true
-        regularize_afterward: false
-        split_only_tail: true
-        weight_refund: true
-      STDP_cortex_settings:
-        init_D_P_rate_ratio: 0.7
-        init_P_rate: 1.0e-06
-        learning_rate_decrease_base: 0
-      base_cortex_settings:
-        amplifier_settings:
-          log_amplifier_delta: 6.25e-06
-          lower_bound: 1.0e-05
-          upper_bound: 999999999
-          log_amplifier_delta_by_cortex:
-            A: 1.25e-06
-          target_mean_first_spike_earliness_by_cortex:
-            A: 0.38
-        kernel_settings:
-          init_mean: 0.8
-          init_std: 0.05
-          minimal_weight: 5.5e-05
-          no_skip_links: true
-          non_negative_weights: false
-          normalize_settings:
-            dim_0_freq: 1
-            dim_1_freq: 1
-            freq_diff: 0
-            norm_p: 1
-            out_weight_len: 1
-            use_shape_ratio: true
-            dim_1_mode: per_sender
-            dim_0_freq_by_cortex:
-              A: 1
-              A-1: 1
-            dim_1_freq_by_cortex:
-              A: 1
-              A-1: 0
-        lateral_inhibition:
-          factor: 3.0
-          power: 1.0
-        top_k: 4
-      neuron_vectors_spec:
-        potential_decay_rate: 1.0
-        reset_state: 0
-        resting_length: 999
-        threshold_settings:
-          homeostasis_ema_decay: 0.0
-          log_thresholds_delta: 0.00125
-          lower_bound: 0.1
-          upper_bound: 10.0
-          target_mean_first_spike_factor_by_cortex:
-            A: 0.075
-      spike_trace_settings:
-        balanced_spike_trace: true
-        spike_decay_rate: 0.66
-    image_encoder_spec:
-      encoder: rank_order
-      simulation_time: 40
-      end_score_search_steps: 16
-    init_cortex:
-      fix_shape: true
-      input_channel: 6
-      kernel_size: 28
-      output_channel: 10
-      stride: 4
-      init_amplifier: 1
-      competition_group_N: 20
-      pooling_settings:
-        mode: max
-        kernel_size: global
-      subcortexs:
-      - fix_shape: true
-        input_channel: 6
-        kernel_size: 10
-        output_channel: 300
-        stride: 2
-        pooling_settings:
-          mode: max
-          kernel_size: 2
-    remember_settings:
-      STDP_mechanism:
-        label_usage: signed_ltp
-        label_propagating: false
-        hinge_softmax_label:
-          margin: 0.3
-          label_scope: class_aggregate
-          positive_scale: 40.0
-          negative_scale: 120.0
-          wrong_background_value: 0.0
-          softmax_temperature: 0.25
-          correct_background_value: 0.0
-      self_cleaning_after_STDP: false
-  sub_exp_name: mnist_simultaneous
-  seed:
-  - 34000
-  - 34001
-  - 34002
-  - 34003
-  description:
-    subexp: Post then pre every batch; output-only schedule unless explicitly hidden_only/all_layers;
-      matched dataset base.
-- data:
-    dataset_name: MNIST
-    batch_size: 200
-    label_perm: false
-    use_DoG: true
-    cache_transforms: true
-    cache_dtype: float32
-    DoG_settings:
-      on_off_rate: 1.0
-      normalize: true
-      kernel_specs:
-      - kernel_size: 3
-        sigma_center: 0.3333333333333333
-        sigma_surround: 0.6666666666666666
-      - kernel_size: 3
-        sigma_center: 0.6666666666666666
-        sigma_surround: 0.3333333333333333
-      - kernel_size: 7
-        sigma_center: 0.7777777777777778
-        sigma_surround: 1.5555555555555556
-      - kernel_size: 7
-        sigma_center: 1.5555555555555556
-        sigma_surround: 0.7777777777777778
-      - kernel_size: 13
-        sigma_center: 1.4444444444444444
-        sigma_surround: 2.888888888888889
-      - kernel_size: 13
-        sigma_center: 2.888888888888889
-        sigma_surround: 1.4444444444444444
-  training_settings:
-    max_epoch: 20
-    min_epoch: 0
-    sleep_freq: 99999
-    evaluate_freq: 2
-    STDP_interval: 1
-    stdp_update_mode: two_pass_decision_contingent
-    simulation_forward_mode: streaming
-    save_best_model: false
-    evaluation_level: 3
-    evaluation_phases:
-    - valid
-    - test
-    final_evaluation_phases:
-    - valid
-    - test
-    training_schedule:
-      enabled: true
-      stages:
-      - start_epoch: 2
-        frozen_cortex_ids:
-        - A-1
-    diagnostic_settings:
-      readout: false
-      ablation_chart: false
-      singular_value_spectrum: false
-      top_maps_plot: false
-      confusion_matrix: true
-      cortex_statistics: true
-      sample_activity_images: false
-      temporal_sample_metrics: true
-      sample_activity_phases:
-      - valid
-      - test
-      hinge_temporal_metrics: true
-      hinge_temporal_phases:
-      - valid
-      - test
-      gpu_usage: true
-      model_shape: false
-      kernel_heatmaps: false
-      readout_fusion: false
-      readout_error_overlap: false
-      threshold_distribution: true
-      per_neuron_activity: true
-      per_neuron_activity_phases:
-      - valid
-      - test
-      per_neuron_activity_max_batches: 30
-      training_invariant_audit:
-        cortex_ids:
-        - A-1
-        - A
-        root_cortex_id: A
-        audit_root_direct: true
-        audit_root_branch: false
-      normalization_mechanism_artifacts: true
-      normalization_mechanism_trajectory_epochs:
-      - 20
-      normalization_mechanism_trajectory_phases:
-      - test
-      normalization_mechanism_artifact_micro_batch_size: 20
-      normalization_mechanism_save_full_weight: true
-      normalization_mechanism_full_weight_epochs:
-      - 20
-    readout_params:
-      weight_decay: 0.0001
-      optimizer: lbfgs
-      max_iter: 200
-      lr: 0.001
-      epochs: 0
-    save_final_model: false
-    evaluation_micro_batch_size: 200
-  model:
-    first_spike_delay_factor: null
-    mean_spike_delay_factor: null
-    target_mean_earliness:
-      min_target_earliness: 0.03625
-      max_target_earliness: 0.03625
-    cortex_spec:
-      PCA_cortex_settings:
-        PCA_settings:
-          leave_out_num: 2
-          method: PCA
-          normalizing: true
-          remained_variance: 1
-          transpose: false
-        new_cortex_split_ratio: 1
-        refund_with_amplifier: true
-        regularize_afterward: false
-        split_only_tail: true
-        weight_refund: true
-      STDP_cortex_settings:
-        init_D_P_rate_ratio: 0.7
-        init_P_rate: 1.0e-06
-        learning_rate_decrease_base: 0
-      base_cortex_settings:
-        amplifier_settings:
-          log_amplifier_delta: 6.25e-06
-          lower_bound: 1.0e-05
-          upper_bound: 999999999
-          log_amplifier_delta_by_cortex:
-            A: 1.25e-06
-          target_mean_first_spike_earliness_by_cortex:
-            A: 0.38
-        kernel_settings:
-          init_mean: 0.8
-          init_std: 0.05
-          minimal_weight: 5.5e-05
-          no_skip_links: true
-          non_negative_weights: false
-          normalize_settings:
-            dim_0_freq: 2
-            dim_1_freq: 2
-            freq_diff: 0
-            norm_p: 1
-            out_weight_len: 1
-            use_shape_ratio: true
-            dim_1_mode: per_sender
-            dim_0_freq_by_cortex:
-              A: 2
-              A-1: 1
-            dim_1_freq_by_cortex:
-              A: 2
-              A-1: 0
-        lateral_inhibition:
-          factor: 3.0
-          power: 1.0
-        top_k: 4
-      neuron_vectors_spec:
-        potential_decay_rate: 1.0
-        reset_state: 0
-        resting_length: 999
-        threshold_settings:
-          homeostasis_ema_decay: 0.0
-          log_thresholds_delta: 0.00125
-          lower_bound: 0.1
-          upper_bound: 10.0
-          target_mean_first_spike_factor_by_cortex:
-            A: 0.075
-      spike_trace_settings:
-        balanced_spike_trace: true
-        spike_decay_rate: 0.66
-    image_encoder_spec:
-      encoder: rank_order
-      simulation_time: 40
-      end_score_search_steps: 16
-    init_cortex:
-      fix_shape: true
-      input_channel: 6
-      kernel_size: 28
-      output_channel: 10
-      stride: 4
-      init_amplifier: 1
-      competition_group_N: 20
-      pooling_settings:
-        mode: max
-        kernel_size: global
-      subcortexs:
-      - fix_shape: true
-        input_channel: 6
-        kernel_size: 10
-        output_channel: 300
-        stride: 2
-        pooling_settings:
-          mode: max
-          kernel_size: 2
-    remember_settings:
-      STDP_mechanism:
-        label_usage: signed_ltp
-        label_propagating: false
-        hinge_softmax_label:
-          margin: 0.3
-          label_scope: class_aggregate
-          positive_scale: 40.0
-          negative_scale: 120.0
-          wrong_background_value: 0.0
-          softmax_temperature: 0.25
-          correct_background_value: 0.0
-      self_cleaning_after_STDP: false
-  sub_exp_name: mnist_simultaneous_half
-  seed:
-  - 34000
-  - 34001
-  - 34002
-  - 34003
-  description:
-    subexp: Post then pre every other batch; output-only schedule unless explicitly
-      hidden_only/all_layers; matched dataset base.
 - data:
     dataset_name: MNIST
     batch_size: 200
@@ -2113,10 +1685,10 @@ sub_experiments:
             dim_1_mode: per_sender
             dim_0_freq_by_cortex:
               A: 2
-              A-1: 2
+              A-1: 1
             dim_1_freq_by_cortex:
               A: 2
-              A-1: 2
+              A-1: 0
         lateral_inhibition:
           factor: 3.0
           power: 1.0
@@ -2172,12 +1744,12 @@ sub_experiments:
           softmax_temperature: 0.25
           correct_background_value: 0.0
       self_cleaning_after_STDP: false
-  sub_exp_name: mnist_all_layers
+  sub_exp_name: mnist_alternating
   seed:
   - 34000
   - 34001
   - 34002
   - 34003
   description:
-    subexp: Doubly all layers; output-only schedule unless explicitly hidden_only/all_layers;
+    subexp: Doubly alternating; output-only schedule unless explicitly hidden_only/all_layers;
       matched dataset base.

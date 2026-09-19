@@ -18,7 +18,7 @@ python -m pip install -r requirements.txt
 ```bash
 cd code
 
-# Train all three experiments, then generate three figure PDFs and four table CSVs.
+# Train all three experiments, then generate three figure PDFs and three table CSVs.
 python main.py experiments
 
 # Or run one experiment file.
@@ -54,15 +54,15 @@ logs/paper_doubly_sender/{run-name}/
 
 The sender experiment also saves the shared-prefix and final checkpoints under
 `saved_models/paper_doubly_sender/`. MNIST and N-MNIST do not save model
-checkpoints. After all 92 runs finish, the analysis step writes the paper-ready
+checkpoints. After all 76 runs finish, the analysis step writes the paper-ready
 sample outputs directly to `result/`.
 
 ### Experiment files
 
 | File | Dataset | Seeds | Training | Outputs |
 |---|---|---:|---:|---|
-| `01_mnist.yaml` | MNIST | 34000–34003 | 20 epochs | Tables 1–3, Figure 1 |
-| `02_nmnist_t20.yaml` | Native N-MNIST, T=20 | 35100–35103 | 20 epochs | Tables 1, 2, 4; Figure 2 |
+| `01_mnist.yaml` | MNIST | 34000–34003 | 20 epochs | Tables 1, 2; Figure 1 |
+| `02_nmnist_t20.yaml` | Native N-MNIST, T=20 | 35100–35103 | 20 epochs | Tables 1–3; Figure 2 |
 | `03_sender.yaml` | MNIST | 40500–40503 | 1 shared + 19 continuation epochs | Figure 3 |
 
 MNIST follows the receiver-side-amplifier-compatible Temporal-Margin `ex767`/`ex781`
@@ -76,42 +76,37 @@ no-decision samples are incorrect.
 `P` = pre-normalization, `Q` = post-normalization, `-` = no operation. Sequences
 are indexed by learning updates, not epochs.
 
-| Condition | A-1 | Output layer A | Sequence at A |
+| Condition | Hidden layer A-1 | Output layer A | Four-update pattern |
 |---|---|---|---|
-| Post every batch | Q every batch | Q every batch | `Q Q Q Q` |
-| Post every other batch | Q every batch | Q every other batch | `- Q - Q` |
-| None | Q every batch | None | `- - - -` |
-| Pre every batch | Q every batch | P every batch | `P P P P` |
-| Pre every other batch | Q every batch | P every other batch | `P - P -` |
-| Doubly, output only | Q every batch | Alternating P/Q | `P Q P Q` |
-| Post then Pre, every batch | Q every batch | Q then P | `QP QP QP QP` |
-| Post then Pre, every other batch | Q every batch | Q then P every other batch | `- QP - QP` |
+| No constraint | None | None | `- - - -` |
+| Post only | Q every batch | Q every batch | `Q Q Q Q` |
+| Post only, 1/2 freq | Q every other batch | Q every other batch | `- Q - Q` |
+| Pre only | P every batch | P every batch | `P P P P` |
+| Pre only, 1/2 freq | P every other batch | P every other batch | `P - P -` |
+| Doubly, alternating | Alternating P/Q | Alternating P/Q | `P Q P Q` |
 | Doubly, hidden only | Alternating P/Q | Q every batch | `Q Q Q Q` |
-| Doubly, all layers | Alternating P/Q | Alternating P/Q | `P Q P Q` |
+| Doubly, output only | Q every batch | Alternating P/Q | `P Q P Q` |
 
 ### Chapter outputs
 
 | Output | Content | Evaluation data |
 |---|---|---|
-| Table 1 | Normalization schedules; MNIST and N-MNIST accuracy | Full test set |
-| Table 2 | Hidden/output/all-layer placement accuracy | Full test set |
-| Figure 1, Table 3 | Output-layer receiver activity and weight spectrum | MNIST test set |
-| Figure 2, Table 4 | Correct/wrong earliness, gap, no-decision and accuracy | N-MNIST test set |
+| Table 1 | Six schedules applied at both layers; accuracy | Full test set |
+| Table 2 | Hidden x output placement square; accuracy | Full test set |
+| Table 3 | Correct/wrong earliness, gap, no-decision and accuracy | N-MNIST test set |
+| Figure 1 | Hidden-unit firing-rate distribution and cumulative singular-value mass | MNIST test set |
+| Figure 2 | Correct and wrong earliness | N-MNIST test set |
 | Figure 3 | Sender removal and attenuation | 200 validation samples per seed |
 
 Results are saved directly to `result/` as exactly seven files:
-`figure1.pdf`--`figure3.pdf` and `table1.csv`--`table4.csv`.
+`figure1.pdf`--`figure3.pdf` and `table1.csv`--`table3.csv`.
 
 ### Reported metrics
 
 | Metric | Definition |
 |---|---|
-| Activity rate | Receiver first-spike count / number of samples |
-| Dead fraction | Receivers with no first spike / all receivers |
-| Activity variance | Population variance of receiver activity rates |
-| Mean spikes | Root receiver first spikes / number of samples |
+| Firing rate | Mean per-unit activity of a hidden unit over the test set |
 | Effective rank | `exp(-sum(p log p))`, where `p = s / sum(s)` |
-| Participation ratio | `(sum(s²))² / sum(s⁴)` |
 | Correct earliness | First-spike earliness of the true class |
 | Wrong earliness | Maximum first-spike earliness among wrong classes |
 | Gap | Correct earliness − wrong earliness |
@@ -139,16 +134,17 @@ figures below were generated from those completed runs.
 
 ## Results
 
-The verified outputs below are reproducible samples from the full 92-run
-experiment. Figure 1 uses the recorded epoch-20 receiver-activity deciles and
-the full output-layer weight matrices. Accuracy and timing use the full test
-set; receiver activity uses the configured 30-batch diagnostic subset.
+The verified outputs below are reproducible samples from the full 76-run
+experiment. Every condition trained here is consumed by one of the three
+figures or three tables. Figure 1 uses the recorded per-unit hidden activity
+and the full output-layer weight matrices; accuracy and timing use the full
+test set.
 
 ### Figures
 
 | Figure | Content | Sample |
 |---|---|---|
-| Figure 1 | Receiver activity and output-layer singular values | [PDF](result/figure1.pdf) |
+| Figure 1 | Hidden-unit firing rates and output-layer spectrum | [PDF](result/figure1.pdf) |
 | Figure 2 | Correct and wrong evidence earliness | [PDF](result/figure2.pdf) |
 | Figure 3 | Sender removal and attenuation | [PDF](result/figure3.pdf) |
 
@@ -156,43 +152,29 @@ set; receiver activity uses the configured 30-batch diagnostic subset.
 
 #### Table 1 — Normalization schedule
 
-| Method | Schedule | MNIST | N-MNIST |
+| Method | Pattern | MNIST | N-MNIST |
 |---|:---:|---:|---:|
-| Post every batch | `Q Q Q Q` | 97.948 ± 0.013 | 97.143 ± 0.091 |
-| Post every other batch | `- Q - Q` | 97.932 ± 0.145 | 97.152 ± 0.142 |
-| None | `- - - -` | 75.478 ± 1.316 | 37.145 ± 3.012 |
-| Pre every batch | `P P P P` | 98.110 ± 0.114 | 97.435 ± 0.060 |
-| Pre every other batch | `P - P -` | 98.180 ± 0.045 | 97.420 ± 0.028 |
-| Doubly alternating | `P Q P Q` | **98.233 ± 0.090** | **97.465 ± 0.119** |
-| Post then pre every batch | `QP QP QP QP` | 98.100 ± 0.132 | 97.432 ± 0.079 |
-| Post then pre every other batch | `- QP - QP` | 98.075 ± 0.101 | 97.422 ± 0.036 |
+| No constraint | `- - - -` | 52.952 ± 0.827 | 18.980 ± 1.648 |
+| Post only | `Q Q Q Q` | 97.948 ± 0.013 | 97.143 ± 0.091 |
+| Post only, 1/2 freq | `- Q - Q` | 97.690 ± 0.104 | 97.067 ± 0.100 |
+| Pre only | `P P P P` | 67.963 ± 1.735 | 44.685 ± 2.103 |
+| Pre only, 1/2 freq | `P - P -` | 63.673 ± 4.892 | 45.565 ± 1.729 |
+| Doubly, alternating | `P Q P Q` | **98.120 ± 0.050** | **97.430 ± 0.068** |
 
 [CSV](result/table1.csv)
 
 #### Table 2 — Layer placement
 
-| Method | MNIST | N-MNIST |
-|---|---:|---:|
-| Post every batch | 97.948 ± 0.013 | 97.143 ± 0.091 |
-| Doubly hidden only | 97.805 ± 0.097 (-0.142) | 96.820 ± 0.141 (-0.322) |
-| Doubly alternating | 98.233 ± 0.090 (+0.285) | 97.465 ± 0.119 (+0.322) |
-| Doubly all layers | 98.120 ± 0.050 (+0.173) | 97.430 ± 0.068 (+0.287) |
+| Hidden | Output | MNIST | N-MNIST |
+|---|---|---:|---:|
+| Post | Post | 97.948 ± 0.013 | 97.143 ± 0.091 |
+| Doubly | Post | 97.805 ± 0.097 (-0.142) | 96.820 ± 0.141 (-0.322) |
+| Post | Doubly | 98.233 ± 0.090 (+0.285) | 97.465 ± 0.119 (+0.322) |
+| Doubly | Doubly | 98.120 ± 0.050 (+0.173) | 97.430 ± 0.068 (+0.287) |
 
 [CSV](result/table2.csv)
 
-#### Table 3 — Activity and spectrum summary
-
-| Method | Effective rank | Participation ratio | Dead (%) | Activity variance | Mean spikes |
-|---|---:|---:|---:|---:|---:|
-| Post every batch | 56.7697 ± 0.2218 | 1.0589 ± 0.0016 | 0.2500 ± 0.2887 | 0.0015 ± 0.0000 | 8.3473 ± 0.0475 |
-| None | 23.3711 ± 0.0116 | 1.0077 ± 0.0000 | 0.0000 ± 0.0000 | 0.0013 ± 0.0001 | 107.4066 ± 0.0331 |
-| Pre every batch | 70.3395 ± 1.1047 | 1.0772 ± 0.0052 | 0.0000 ± 0.0000 | 0.0012 ± 0.0000 | 11.9645 ± 0.0424 |
-| Doubly alternating | 69.1633 ± 0.9034 | 1.0783 ± 0.0036 | 0.0000 ± 0.0000 | 0.0014 ± 0.0000 | 11.9755 ± 0.0382 |
-| Post then pre every batch | 68.6510 ± 0.8676 | 1.0788 ± 0.0028 | 0.0000 ± 0.0000 | 0.0013 ± 0.0000 | 11.9602 ± 0.0616 |
-
-[CSV](result/table3.csv)
-
-#### Table 4 — N-MNIST decision and timing summary
+#### Table 3 — N-MNIST decision and timing summary
 
 | Metric | Post-only | Doubly |
 |---|---:|---:|
@@ -202,7 +184,7 @@ set; receiver activity uses the configured 30-batch diagnostic subset.
 | Wrong earliness | 8.982% | 12.297% (+3.315%) |
 | Gap | 37.577% | 40.388% (+2.810%) |
 
-[CSV](result/table4.csv)
+[CSV](result/table3.csv)
 
 ## License
 

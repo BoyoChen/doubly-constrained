@@ -7,6 +7,16 @@ ROOT=HERE.parent
 sys.path.insert(0,str(ROOT/'code'))
 from modules.reproduction import settings
 
+# The normalization contract each condition must satisfy, as
+# (A-1 post, A-1 pre, A post, A pre, freq_diff). 0 = never, 1 = every update,
+# 2 = every other update; freq_diff offsets pre against post.
+SCHEDULES={
+ 'none_all_layers':(0,0,0,0,0),'post_every':(1,0,1,0,0),
+ 'post_half_all_layers':(2,0,2,0,0),'pre_all_layers':(0,1,0,1,0),
+ 'pre_half_all_layers':(0,2,0,2,1),'all_layers':(2,2,2,2,1),
+ 'hidden_only':(2,2,1,0,1),'alternating':(1,0,2,2,1),
+}
+
 def main():
     p=argparse.ArgumentParser();p.add_argument('--construct-models',action='store_true');a=p.parse_args()
     coverage=json.loads((ROOT/'code/coverage.json').read_text());report={'groups':{},'models':[],'full_training':False}
@@ -15,7 +25,9 @@ def main():
         assert list(doc)==['experiment_name','shared_settings','sub_experiments']
         assert not any(isinstance(e,yaml.AliasEvent) or getattr(e,'anchor',None) for e in yaml.parse(raw))
         rows=settings(group);assert len({r['sub_exp_name'] for r in rows})==len(rows)
-        assert len(rows)==(12 if group=='sender' else 40);report['groups'][group]=len(rows);seen=set()
+        if group!='sender':
+            assert {r['sub_exp_name'].rsplit('_seed',1)[0][len(group)+1:] for r in rows}==set(SCHEDULES)
+        assert len(rows)==(12 if group=='sender' else 32);report['groups'][group]=len(rows);seen=set()
         for r in rows:
             assert 'sham' not in r['sub_exp_name']
             if group!='sender':
@@ -28,8 +40,10 @@ def main():
                 assert 'test' in d['normalization_mechanism_trajectory_phases']
                 name=r['sub_exp_name'].rsplit('_seed',1)[0][len(group)+1:]
                 n=r['model']['cortex_spec']['base_cortex_settings']['kernel_settings']['normalize_settings']
-                assert n['dim_0_freq_by_cortex']['A-1']==(2 if name in ['hidden_only','all_layers'] else 1)
-                assert n['dim_1_freq_by_cortex']['A-1']==(2 if name in ['hidden_only','all_layers'] else 0)
+                assert name in SCHEDULES, name
+                assert (n['dim_0_freq_by_cortex']['A-1'],n['dim_1_freq_by_cortex']['A-1'],
+                        n['dim_0_freq_by_cortex']['A'],n['dim_1_freq_by_cortex']['A'],
+                        n['freq_diff'])==SCHEDULES[name],name
                 if group=='nmnist':
                     assert r['data']['event_frame_settings']['temporal_bins']==20
                     assert r['model']['image_encoder_spec']['encoder']=='direct_event_bins'

@@ -6,6 +6,7 @@ import pandas as pd
 from scipy.stats import t
 import matplotlib
 matplotlib.use('Agg')
+import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 from tensorboard.backend.event_processing.event_accumulator import EventAccumulator
 from modules.reproduction import settings, ROOT, HERE
@@ -68,8 +69,25 @@ def build_sender(logs=None):
 
 
 
+# STIXGeneral ships with matplotlib and is Times-metric-compatible, so the
+# figures match the paper's body text and render identically off this machine.
+FONT={'font.family':'STIXGeneral','mathtext.fontset':'stix','pdf.fonttype':42,
+      'font.size':7,'axes.labelsize':7.2}
 COLORS=['#6C91B0','#D99259','#909090','#648B70','#AB7AA2']
-STRUCTURE=['post_every','none','pre_every','alternating','simultaneous']
+# Figure 1 uses a separately validated set: all-pairs CVD dE 9.2,
+# normal-vision 24.0 on the light surface.
+# Its neutral is the reference condition and deliberately carries no chroma.
+BLUE,ORANGE,AQUA,NEUTRAL='#2a78d6','#eb6834','#1baf7a','#5f5f5f'
+DASH=(0,(4.5,1.8))
+# Figure 1: the four every-batch schedules, in the order Table 1 lists them.
+FIGURE1=[('none_all_layers','No constraint',NEUTRAL,'-',1.5),
+         ('post_every','Post only',BLUE,'-',1.3),
+         ('pre_all_layers','Pre only',AQUA,DASH,1.4),
+         ('all_layers','Doubly',ORANGE,'-',1.6)]
+# Table 1: every schedule, applied at both layers.
+SCHEDULE=['none_all_layers','post_every','post_half_all_layers',
+          'pre_all_layers','pre_half_all_layers','all_layers']
+# Table 2: the hidden x output placement square.
 LAYERS=['post_every','hidden_only','alternating','all_layers']
 
 def derive(decisions,activity,weight,singular_values=None):
@@ -138,8 +156,68 @@ def derive_from_logged_summary(folder, activity, weight, epoch, singular_values=
         raise ValueError(f'Nonfinite logged summary in {folder}')
     return {key: float(value) for key, value in metrics.items()}, rates, sv
 
+def figure1(out,curves,units,mean):
+    """(a) how the hidden units distribute their firing rate, which is what post
+    normalization controls; (b) how the output weight matrix distributes its
+    singular-value mass, which is what pre normalization controls."""
+    ink,muted,grid='#1a1a1a','#6b6b6b','#dcdcdc'
+    def style(ax):
+        for side in ('top','right'):ax.spines[side].set_visible(False)
+        for side in ('left','bottom'):
+            ax.spines[side].set_linewidth(.5);ax.spines[side].set_color(muted)
+        ax.tick_params(width=.5,length=2.2,colors=muted,labelsize=6.2)
+        for label in ax.get_xticklabels()+ax.get_yticklabels():label.set_color(ink)
+        ax.set_axisbelow(True)
+    pooled=np.concatenate([np.concatenate(units[('mnist',c)]) for c,*_ in FIGURE1])
+    bins=np.linspace(0.,float(np.quantile(pooled,.999)),26)
+    heat=[]
+    for c,*_ in FIGURE1:
+        v=np.concatenate(units[('mnist',c)])
+        counts,_=np.histogram(np.clip(v,bins[0],np.nextafter(bins[-1],bins[0])),bins=bins)
+        heat.append(counts/counts.sum()*100)
+    heat=np.asarray(heat)
+    fig=plt.figure(figsize=(3.4,3.3))
+    ax_a=fig.add_axes([.250,.655,.585,.285]);ax_c=fig.add_axes([.850,.655,.024,.285])
+    ax_b=fig.add_axes([.250,.130,.710,.365])
+    mesh=ax_a.pcolormesh(bins,np.arange(len(FIGURE1)+1),np.ma.masked_less_equal(heat,0.),
+                         cmap='YlGnBu',norm=mcolors.LogNorm(vmin=.2,vmax=float(heat.max())),
+                         edgecolors='white',linewidth=.2)
+    ax_a.set_yticks(np.arange(len(FIGURE1))+.5)
+    ax_a.set_yticklabels([label for _,label,*_ in FIGURE1],fontsize=6.5)
+    ax_a.invert_yaxis();ax_a.set_xlim(bins[0],bins[-1])
+    ax_a.set_xticks(np.linspace(0,bins[-1],4))
+    ax_a.set_xticklabels([f'{v:.2f}' for v in np.linspace(0,bins[-1],4)])
+    ax_a.set_xlabel('Mean firing rate per hidden unit',labelpad=1.5)
+    style(ax_a);ax_a.spines['left'].set_visible(False);ax_a.tick_params(left=False)
+    cbar=fig.colorbar(mesh,cax=ax_c)
+    cbar.set_label('Units per bin (%)',fontsize=6.,labelpad=1.5,color=ink)
+    cbar.ax.tick_params(labelsize=5.6,width=.4,length=1.8,colors=muted)
+    cbar.outline.set_linewidth(.4);cbar.outline.set_edgecolor(muted)
+    handles=[]
+    for c,label,color,dash,width in FIGURE1:
+        sv=np.stack([np.sort(pair[1])[::-1] for pair in curves[('mnist',c)]]).mean(0)
+        line,=ax_b.plot(np.arange(1,len(sv)+1),np.cumsum(sv)/sv.sum(),color=color,
+                        linestyle=dash,linewidth=width,solid_capstyle='round',
+                        dash_capstyle='round')
+        handles.append((line,f"{label}  ({mean.loc[('mnist',c),'effective_rank']:.0f})"))
+    style(ax_b);ax_b.grid(True,color=grid,linewidth=.35)
+    ax_b.set_xscale('log');ax_b.set_xlim(1,len(sv));ax_b.minorticks_off()
+    ticks=[x for x in (1,2,5,10,20,50,100,200) if x<=len(sv)]
+    ax_b.set_xticks(ticks);ax_b.set_xticklabels([str(x) for x in ticks])
+    ax_b.set_ylim(0,1.02);ax_b.set_yticks([0,.25,.5,.75,1.])
+    ax_b.set_xlabel('Singular-value rank',labelpad=1.5)
+    ax_b.set_ylabel('Cumulative share of' + chr(10) + 'singular-value mass',labelpad=3)
+    ax_b.legend([h for h,_ in handles],[l for _,l in handles],loc='upper left',
+                bbox_to_anchor=(-.02,1.04),ncol=2,frameon=False,fontsize=6.,
+                handlelength=2.,columnspacing=.6,handletextpad=.35,labelspacing=.2,
+                labelcolor=ink)
+    fig.text(.012,.945,'(a)',fontsize=7.5,color=ink,weight='bold')
+    fig.text(.012,.505,'(b)',fontsize=7.5,color=ink,weight='bold')
+    fig.savefig((out/'figure1').with_suffix('.pdf'));plt.close(fig)
+
+
 def build(out,logs):
-    spec=json.loads((HERE/'coverage.json').read_text());records=[];curves={};spectra={}
+    spec=json.loads((HERE/'coverage.json').read_text());records=[];curves={};spectra={};units={}
     for dataset,ds in spec['datasets'].items():
         for row in settings(dataset):
             condition=row['sub_exp_name'].rsplit('_seed',1)[0][len(dataset)+1:]
@@ -163,39 +241,30 @@ def build(out,logs):
             spectra[key]=sv
             records.append(dict(dataset=dataset,condition=condition,seed=row['seed'],epoch=e,phase='test',**values))
             curves.setdefault((dataset,condition),[]).append((rates,sv))
+            # Real per-unit means over the test set, so the mass at exactly
+            # zero survives the binning in Figure 1(a).
+            units.setdefault((dataset,condition),[]).append(
+                activity['sender_activity_mean'].astype(float))
     out.mkdir(parents=True,exist_ok=True)
     frame=pd.DataFrame(records)
     grouped=frame.groupby(['dataset','condition']);mean=grouped.mean(numeric_only=True);sd=grouped.std(numeric_only=True,ddof=1)
-    labels={c['id']:c['label'] for c in spec['conditions']};schedule=[c['id'] for c in spec['conditions'][:8]];tables={}
-    for number,conditions in [(1,schedule),(2,LAYERS)]:
-        rows=[]
-        for c in conditions:
-            r={'method':labels[c]}
-            if number==1:r['schedule']=next(x['schedule'] for x in spec['conditions'] if x['id']==c)
-            for ds in ['mnist','nmnist']:
-                v=mean.loc[(ds,c),'accuracy'];r[ds]=f'{v:.3f} ± {sd.loc[(ds,c),"accuracy"]:.3f}'
-                if number==2 and c!='post_every':r[ds]+=f' ({v-mean.loc[(ds,"post_every"),"accuracy"]:+.3f})'
-            rows.append(r)
-        tables[number]=pd.DataFrame(rows)
-    metrics=['effective_rank','participation_ratio','dead_percent','activity_variance','mean_spikes']
-    tables[3]=pd.DataFrame([{'method':labels[c],**{k:f'{mean.loc[("mnist",c),k]:.4f} ± {sd.loc[("mnist",c),k]:.4f}' for k in metrics}} for c in STRUCTURE])
+    info={c['id']:c for c in spec['conditions']};tables={}
+    cell=lambda ds,c:f'{mean.loc[(ds,c),"accuracy"]:.3f} ± {sd.loc[(ds,c),"accuracy"]:.3f}'
+    delta=lambda ds,c:f' ({mean.loc[(ds,c),"accuracy"]-mean.loc[(ds,"post_every"),"accuracy"]:+.3f})'
+    tables[1]=pd.DataFrame([{'method':info[c]['label'],'schedule':info[c]['schedule'],
+                             **{ds:cell(ds,c) for ds in ['mnist','nmnist']}} for c in SCHEDULE])
+    tables[2]=pd.DataFrame([{'hidden':info[c]['hidden'],'output':info[c]['output'],
+                             **{ds:cell(ds,c)+('' if c=='post_every' else delta(ds,c))
+                                for ds in ['mnist','nmnist']}} for c in LAYERS])
     rows=[]
     for k in ['accuracy','no_decision','correct_earliness','wrong_earliness','gap']:
-        a=mean.loc[('nmnist','post_every'),k];b=mean.loc[('nmnist','alternating'),k];suffix='' if k=='accuracy' else '%'
-        rows.append({'metric':k,'Post-only':f'{a:.3f}{suffix}','Doubly':f'{b:.3f}{suffix} ({b-a:+.3f}{suffix})'})
-    tables[4]=pd.DataFrame(rows)
+        a_=mean.loc[('nmnist','post_every'),k];b_=mean.loc[('nmnist','alternating'),k];suffix='' if k=='accuracy' else '%'
+        rows.append({'metric':k,'Post-only':f'{a_:.3f}{suffix}','Doubly':f'{b_:.3f}{suffix} ({b_-a_:+.3f}{suffix})'})
+    tables[3]=pd.DataFrame(rows)
     for num,table in tables.items():
         table.to_csv(out/f'table{num}.csv',index=False)
-    plt.rcParams.update({'font.family':'serif','font.size':8,'pdf.fonttype':42})
-    fig,axes=plt.subplots(2,1,figsize=(3.4,4.2))
-    for c,color in zip(STRUCTURE,[COLORS[0],COLORS[2],COLORS[3],COLORS[1],COLORS[4]]):
-        pairs=curves[('mnist',c)]
-        for ax,index in zip(axes,[0,1]):
-            data=np.stack([np.sort(p[index])[::-1] for p in pairs])
-            ax.plot(np.arange(1,data.shape[1]+1),data.mean(0),label=labels[c],color=color)
-    axes[0].set(xlabel='Receiver rank',ylabel='First-spike probability');axes[0].legend(fontsize=6)
-    axes[1].set(xlabel='Singular-value rank',ylabel='Singular value');axes[1].set_yscale('symlog',linthresh=1e-4)
-    fig.tight_layout();save(fig,out/'figure1')
+    plt.rcParams.update(FONT)
+    figure1(out,curves,units,mean)
     fig,axes=plt.subplots(1,2,figsize=(3.4,2.35))
     limits=[(.35,.55),(.05,.25)];ticksets=[[.4,.5],[.1,.2]]
     evidence=[[mean.loc[('nmnist',c),k]/100 for c in ['post_every','alternating']] for k in ['correct_earliness','wrong_earliness']]
@@ -217,6 +286,7 @@ def save(fig,path):
     plt.close(fig)
 
 def sender_column(table,out):
+    plt.rcParams.update(FONT)
     fig,axes=plt.subplots(2,1,figsize=(3.4,4.1))
     variants=['random_support','equal_drive_attenuation','top_support']
     for ax,arm,title,color in zip(axes,['adaptive_post','adaptive_pre'],['Post-only','Doubly'],COLORS):
@@ -226,7 +296,9 @@ def sender_column(table,out):
         ax.axhline(baseline,color='#444444',linestyle='--',linewidth=.8,label=f'Original {baseline:.2f}%')
         ax.set(ylim=(0,115),yticks=[0,50,100],ylabel='Accuracy (%)',title=title,
                xticks=[0,1,2],xticklabels=['Random\nremoval','Uniform\nattenuation','Top-sender\nremoval'])
-        ax.legend(fontsize=7,loc='upper right')
+        ax.annotate(f'Original {baseline:.2f}%',xy=(1,baseline),xycoords=('axes fraction','data'),
+                    xytext=(-3,3),textcoords='offset points',ha='right',va='bottom',
+                    fontsize=6.5,color='#444444')
         for x,y in enumerate(values):ax.text(x,y+2,f'{y:.2f}',ha='center',fontsize=7)
     fig.tight_layout();save(fig,out/'figure3')
 
@@ -246,7 +318,7 @@ def generate_results(sender_only=False):
     sender_summary=build_sender()
     sender_column(sender_summary,out)
     if not sender_only:
-        expected={f'figure{i}.pdf' for i in range(1,4)}|{f'table{i}.csv' for i in range(1,5)}
+        expected={f'figure{i}.pdf' for i in range(1,4)}|{f'table{i}.csv' for i in range(1,4)}
         actual={path.name for path in out.iterdir() if path.is_file()}
         if actual != expected:
             raise RuntimeError(f'Unexpected result files: expected {sorted(expected)}, got {sorted(actual)}')

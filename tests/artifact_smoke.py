@@ -54,8 +54,8 @@ def main():
             shutil.copytree(art,dest/'mechanism_artifacts',dirs_exist_ok=True)
             digest=hashlib.sha256(json.dumps(row,sort_keys=True).encode()).hexdigest()
             (dest/'reproduction_complete.json').write_text(json.dumps({'settings_sha256':digest,'synthetic_only':True}))
-    frame=build(out/'chapter',out/'logs');assert len(frame)==80
-    assert all((out/'chapter'/f'table{i}.csv').is_file() for i in range(1,5))
+    frame=build(out/'chapter',out/'logs');assert len(frame)==64
+    assert all((out/'chapter'/f'table{i}.csv').is_file() for i in range(1,4))
     # Missing artifacts must fail rather than substituting historical data.
     row=settings('mnist')[0];epoch=row['training_settings']['max_epoch'];target=out/'logs'/row['experiment_name']/row['sub_exp_name']/f'mechanism_artifacts/root_weight_epoch{epoch:03d}.npz'
     backup=target.read_bytes();target.unlink()
@@ -84,9 +84,9 @@ def main():
     sender_summary=build_sender(logs=sender_logs)
     assert len(sender_summary)==8
     sender_column(sender_summary,out/'chapter')
-    expected={f'figure{i}.pdf' for i in range(1,4)}|{f'table{i}.csv' for i in range(1,5)}
+    expected={f'figure{i}.pdf' for i in range(1,4)}|{f'table{i}.csv' for i in range(1,4)}
     actual={path.name for path in (out/'chapter').iterdir() if path.is_file()}
     assert actual==expected,(sorted(expected),sorted(actual))
-    report['main_table_count']=4;report['figure_count']=3
+    report['main_table_count']=3;report['figure_count']=3
     (out/'report.json').write_text(json.dumps(report,indent=2));print(json.dumps(report,indent=2))
 if __name__=='__main__':main()

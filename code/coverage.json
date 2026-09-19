@@ -1,55 +1,61 @@
 {
-  "purpose": "New results covering the complete experimental chapter; no historical-number matching",
+  "purpose": "Exactly the runs the three figures and three tables consume; no condition is trained that no float uses",
   "conditions": [
     {
+      "id": "none_all_layers",
+      "label": "No constraint",
+      "schedule": "- - - -",
+      "hidden": "None",
+      "output": "None"
+    },
+    {
       "id": "post_every",
-      "label": "Post every batch",
-      "schedule": "Q Q Q Q"
+      "label": "Post only",
+      "schedule": "Q Q Q Q",
+      "hidden": "Post",
+      "output": "Post"
     },
     {
-      "id": "post_half",
-      "label": "Post every other batch",
-      "schedule": "- Q - Q"
+      "id": "post_half_all_layers",
+      "label": "Post only, 1/2 freq",
+      "schedule": "- Q - Q",
+      "hidden": "Post",
+      "output": "Post"
     },
     {
-      "id": "none",
-      "label": "None",
-      "schedule": "- - - -"
+      "id": "pre_all_layers",
+      "label": "Pre only",
+      "schedule": "P P P P",
+      "hidden": "Pre",
+      "output": "Pre"
     },
     {
-      "id": "pre_every",
-      "label": "Pre every batch",
-      "schedule": "P P P P"
-    },
-    {
-      "id": "pre_half",
-      "label": "Pre every other batch",
-      "schedule": "P - P -"
-    },
-    {
-      "id": "alternating",
-      "label": "Doubly alternating",
-      "schedule": "P Q P Q"
-    },
-    {
-      "id": "simultaneous",
-      "label": "Post then pre every batch",
-      "schedule": "QP QP QP QP"
-    },
-    {
-      "id": "simultaneous_half",
-      "label": "Post then pre every other batch",
-      "schedule": "- QP - QP"
-    },
-    {
-      "id": "hidden_only",
-      "label": "Doubly hidden only",
-      "schedule": "Q Q Q Q"
+      "id": "pre_half_all_layers",
+      "label": "Pre only, 1/2 freq",
+      "schedule": "P - P -",
+      "hidden": "Pre",
+      "output": "Pre"
     },
     {
       "id": "all_layers",
-      "label": "Doubly all layers",
-      "schedule": "P Q P Q"
+      "label": "Doubly, alternating",
+      "schedule": "P Q P Q",
+      "hidden": "Doubly",
+      "output": "Doubly"
+    },
+    {
+      "id": "hidden_only",
+      "label": "Doubly, hidden only",
+      "schedule": "Q Q Q Q",
+      "hidden": "Doubly",
+      "output": "Post"
+    },
+    {
+      "id": "alternating",
+      "label": "Doubly, output only",
+      "schedule": "P Q P Q",
+      "hidden": "Post",
+      "output": "Doubly"
     }
   ],
   "datasets": {
@@ -64,7 +70,7 @@
         34003
       ],
       "final_epoch": 20,
-      "runs": 40,
+      "runs": 32,
       "phase": "test"
     },
     "nmnist": {
@@ -78,17 +84,16 @@
         35103
       ],
       "final_epoch": 20,
-      "runs": 40,
+      "runs": 32,
       "phase": "test"
     }
   },
   "coverage": {
-    "table1": "Both datasets: first eight conditions; schedule changes only root A",
-    "table2": "Both datasets: post_every, hidden_only, alternating, all_layers",
-    "figure1": "MNIST root receiver activity and root branch singular spectrum; four seeds",
-    "table3": "MNIST root weight effective rank/participation ratio and root receiver activity statistics",
+    "table1": "Both datasets, six schedules applied at both layers: none_all_layers, post_every, post_half_all_layers, pre_all_layers, pre_half_all_layers, all_layers",
+    "table2": "Both datasets, the hidden x output placement square: post_every, hidden_only, alternating, all_layers",
+    "table3": "N-MNIST post_every versus alternating: accuracy, no-decision, correct/wrong earliness, gap",
+    "figure1": "MNIST, the four every-batch schedules of Table 1: hidden-unit firing-rate distribution and cumulative singular-value mass",
     "figure2": "N-MNIST post_every versus alternating correct/wrong earliness",
-    "table4": "N-MNIST post_every versus alternating native accuracy, no-decision, correct/wrong earliness, gap",
     "figure3": "MNIST sender intervention: shared prefix and two adaptive arms; validation diagnostic subset"
   }
 }
