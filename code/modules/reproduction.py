@@ -36,7 +36,10 @@ def settings(group, stage='all', seed=None):
         if group == 'sender' and not prefix:
             checkpoint = ROOT / 'saved_models/paper_doubly_sender' / (
                 f"mnist_shared_prefix_e1_seed{row['seed']}.pickle")
-            row['model']['load_from'] = {'path': str(checkpoint)}
+            # Continuations resume the complete prefix model.  The expanded YAML
+            # repeats the architecture for documentation, but construct_model
+            # intentionally rejects architecture overrides when loading a model.
+            row['model'] = {'load_from': {'path': str(checkpoint)}}
         selected.append(row)
     if not selected:
         raise ValueError('No runs match the requested group/stage/seed.')

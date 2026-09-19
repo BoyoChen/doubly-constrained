@@ -42,6 +42,7 @@ def main():
                     assert threshold['target_mean_first_spike_factor_by_cortex']['A']==.075
             elif 'load_from' in r['model']:
                 t=r['training_settings'];s=t['diagnostic_settings']['sender_decision_study']
+                assert set(r['model'])=={'load_from'} and set(r['model']['load_from'])=={'path'}
                 assert t['max_epoch']==19 and t['epoch_offset']==1
                 assert s['support_normalization']=='none' and s['samples_per_class']==20
                 assert s['deletion_fraction']==.1 and 20 in s['epochs']
