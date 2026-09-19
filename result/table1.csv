@@ -1,0 +1,9 @@
+method,schedule,mnist,nmnist
+Post every batch,Q Q Q Q,97.948 ± 0.013,97.143 ± 0.091
+Post every other batch,- Q - Q,97.932 ± 0.145,97.152 ± 0.142
+None,- - - -,75.478 ± 1.316,37.145 ± 3.012
+Pre every batch,P P P P,98.110 ± 0.114,97.435 ± 0.060
+Pre every other batch,P - P -,98.180 ± 0.045,97.420 ± 0.028
+Doubly alternating,P Q P Q,98.233 ± 0.090,97.465 ± 0.119
+Post then pre every batch,QP QP QP QP,98.100 ± 0.132,97.432 ± 0.079
+Post then pre every other batch,- QP - QP,98.075 ± 0.101,97.422 ± 0.036

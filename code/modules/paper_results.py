@@ -7,6 +7,7 @@ from scipy.stats import t
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from tensorboard.backend.event_processing.event_accumulator import EventAccumulator
 from modules.reproduction import settings, ROOT, HERE
 
 VARIANTS = ['identity', 'random_support', 'equal_drive_attenuation', 'top_support']
@@ -89,6 +90,54 @@ def derive(decisions,activity,weight,singular_values=None):
     if not all(np.isfinite(v) for v in metrics.values()):raise ValueError('Nonfinite result')
     return {k:float(v) for k,v in metrics.items()},rates,sv
 
+
+def _scalar_at_epoch(events, tag, epoch):
+    matches = [event.value for event in events.Scalars(tag) if event.step == epoch]
+    if not matches:
+        raise ValueError(f'Missing TensorBoard scalar {tag} at epoch {epoch}')
+    return float(matches[-1])
+
+
+def derive_from_logged_summary(folder, activity, weight, epoch, singular_values=None):
+    """Read the formal Prefect schema used before native_decisions was added."""
+    events = EventAccumulator(str(folder), size_guidance={'scalars': 0})
+    events.Reload()
+    scalar = lambda tag: _scalar_at_epoch(events, tag, epoch)
+    prefix = 'per_neuron_active_fraction/hidden/test/A'
+    quantiles = np.asarray([scalar(f'{prefix}/q{q:02d}') for q in range(0, 101, 10)])
+    weight_array = weight['root_branch_weight'].astype(float)
+    receiver_count = weight_array.shape[1]
+    rates = np.interp(
+        np.linspace(0., 1., receiver_count),
+        np.linspace(0., 1., len(quantiles)),
+        quantiles,
+    )
+    sv = np.linalg.svd(weight_array, compute_uv=False) if singular_values is None else singular_values
+    p = sv / sv.sum() if sv.sum() > 0 else np.zeros_like(sv)
+    rank = float(np.exp(-(p[p > 0] * np.log(p[p > 0])).sum())) if sv.sum() > 0 else 0.
+    energy = sv ** 2
+    pr = float(energy.sum() ** 2 / (energy ** 2).sum()) if energy.sum() > 0 else 0.
+    mean_activity = scalar(f'{prefix}/mean')
+    activity_std = scalar(f'{prefix}/std')
+    correct = scalar('hinge/mean_T_correct/test')
+    wrong = scalar('hinge/mean_T_wrong/test')
+    metrics = dict(
+        accuracy=100 * scalar('accuracy/top_spike/test'),
+        no_decision=100 * scalar('decision_distribution/predicted_fraction/test/no_decision'),
+        correct_earliness=100 * correct,
+        wrong_earliness=100 * wrong,
+        gap=100 * (correct - wrong),
+        effective_rank=rank,
+        participation_ratio=pr,
+        dead_percent=100 * scalar(f'{prefix}/eq_zero'),
+        activity_variance=activity_std ** 2,
+        mean_spikes=mean_activity * receiver_count,
+        sample_count=int(activity['sample_count']),
+    )
+    if not all(np.isfinite(value) for value in metrics.values()):
+        raise ValueError(f'Nonfinite logged summary in {folder}')
+    return {key: float(value) for key, value in metrics.items()}, rates, sv
+
 def build(out,logs):
     spec=json.loads((HERE/'coverage.json').read_text());records=[];curves={};spectra={}
     for dataset,ds in spec['datasets'].items():
@@ -99,12 +148,18 @@ def build(out,logs):
             expected=hashlib.sha256(json.dumps(row,sort_keys=True).encode()).hexdigest()
             if json.loads(marker.read_text())['settings_sha256']!=expected:raise ValueError(f'Settings mismatch: {folder}')
             e=ds['final_epoch'];art=folder/'mechanism_artifacts'
-            paths=[art/f'native_decisions_test_epoch{e:03d}.npz',art/f'temporal_contribution_test_epoch{e:03d}.npz',art/f'root_weight_epoch{e:03d}.npz']
-            arrays=[]
-            for path in paths:
-                with np.load(path,allow_pickle=False) as f:arrays.append(dict(f))
-            key=hashlib.sha256(paths[-1].read_bytes()).hexdigest()
-            values,rates,sv=derive(*arrays,singular_values=spectra.get(key))
+            decision_path=art/f'native_decisions_test_epoch{e:03d}.npz'
+            activity_path=art/f'temporal_contribution_test_epoch{e:03d}.npz'
+            weight_path=art/f'root_weight_epoch{e:03d}.npz'
+            with np.load(activity_path,allow_pickle=False) as f:activity=dict(f)
+            with np.load(weight_path,allow_pickle=False) as f:weight=dict(f)
+            key=hashlib.sha256(weight_path.read_bytes()).hexdigest()
+            if decision_path.is_file() and 'root_receiver_first_spike_count' in activity:
+                with np.load(decision_path,allow_pickle=False) as f:decisions=dict(f)
+                values,rates,sv=derive(decisions,activity,weight,singular_values=spectra.get(key))
+            else:
+                values,rates,sv=derive_from_logged_summary(
+                    folder,activity,weight,e,singular_values=spectra.get(key))
             spectra[key]=sv
             records.append(dict(dataset=dataset,condition=condition,seed=row['seed'],epoch=e,phase='test',**values))
             curves.setdefault((dataset,condition),[]).append((rates,sv))

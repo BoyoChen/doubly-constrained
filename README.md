@@ -134,41 +134,75 @@ fixed-zero direct block and upstream A-1 activity are excluded.
 Figure 3 measures conditional decision dependence. Removal sets may differ between
 models, and matched support does not imply matched timing.
 
-The formal 92-run Prefect reproduction was dispatched on 2026-09-19. Until it
-finishes, CPU synthetic checks cover model construction, checkpoint continuation,
-diagnostics and output generation.
+The formal 92-run Prefect reproduction completed on 2026-09-19. All tables and
+figures below were generated from those completed runs.
 
 ## Results
 
-The full 92-run Prefect reproduction is currently in progress. After completion,
-the verified outputs will be committed here as reproducible samples; no
-provisional or synthetic values are shown below.
+The verified outputs below are reproducible samples from the full 92-run
+experiment. Figure 1 uses the recorded epoch-20 receiver-activity deciles and
+the full output-layer weight matrices. Accuracy and timing use the full test
+set; receiver activity uses the configured 30-batch diagnostic subset.
 
 ### Figures
 
 | Figure | Content | Sample |
 |---|---|---|
-| Figure 1 | Receiver activity and output-layer singular values | `result/figure1.pdf` (pending) |
-| Figure 2 | Correct and wrong evidence earliness | `result/figure2.pdf` (pending) |
-| Figure 3 | Sender removal and attenuation | `result/figure3.pdf` (pending) |
+| Figure 1 | Receiver activity and output-layer singular values | [PDF](result/figure1.pdf) |
+| Figure 2 | Correct and wrong evidence earliness | [PDF](result/figure2.pdf) |
+| Figure 3 | Sender removal and attenuation | [PDF](result/figure3.pdf) |
 
 ### Tables
 
 #### Table 1 — Normalization schedule
 
-`result/table1.csv` (pending)
+| Method | Schedule | MNIST | N-MNIST |
+|---|:---:|---:|---:|
+| Post every batch | `Q Q Q Q` | 97.948 ± 0.013 | 97.143 ± 0.091 |
+| Post every other batch | `- Q - Q` | 97.932 ± 0.145 | 97.152 ± 0.142 |
+| None | `- - - -` | 75.478 ± 1.316 | 37.145 ± 3.012 |
+| Pre every batch | `P P P P` | 98.110 ± 0.114 | 97.435 ± 0.060 |
+| Pre every other batch | `P - P -` | 98.180 ± 0.045 | 97.420 ± 0.028 |
+| Doubly alternating | `P Q P Q` | **98.233 ± 0.090** | **97.465 ± 0.119** |
+| Post then pre every batch | `QP QP QP QP` | 98.100 ± 0.132 | 97.432 ± 0.079 |
+| Post then pre every other batch | `- QP - QP` | 98.075 ± 0.101 | 97.422 ± 0.036 |
+
+[CSV](result/table1.csv)
 
 #### Table 2 — Layer placement
 
-`result/table2.csv` (pending)
+| Method | MNIST | N-MNIST |
+|---|---:|---:|
+| Post every batch | 97.948 ± 0.013 | 97.143 ± 0.091 |
+| Doubly hidden only | 97.805 ± 0.097 (-0.142) | 96.820 ± 0.141 (-0.322) |
+| Doubly alternating | 98.233 ± 0.090 (+0.285) | 97.465 ± 0.119 (+0.322) |
+| Doubly all layers | 98.120 ± 0.050 (+0.173) | 97.430 ± 0.068 (+0.287) |
+
+[CSV](result/table2.csv)
 
 #### Table 3 — Activity and spectrum summary
 
-`result/table3.csv` (pending)
+| Method | Effective rank | Participation ratio | Dead (%) | Activity variance | Mean spikes |
+|---|---:|---:|---:|---:|---:|
+| Post every batch | 56.7697 ± 0.2218 | 1.0589 ± 0.0016 | 0.2500 ± 0.2887 | 0.0015 ± 0.0000 | 8.3473 ± 0.0475 |
+| None | 23.3711 ± 0.0116 | 1.0077 ± 0.0000 | 0.0000 ± 0.0000 | 0.0013 ± 0.0001 | 107.4066 ± 0.0331 |
+| Pre every batch | 70.3395 ± 1.1047 | 1.0772 ± 0.0052 | 0.0000 ± 0.0000 | 0.0012 ± 0.0000 | 11.9645 ± 0.0424 |
+| Doubly alternating | 69.1633 ± 0.9034 | 1.0783 ± 0.0036 | 0.0000 ± 0.0000 | 0.0014 ± 0.0000 | 11.9755 ± 0.0382 |
+| Post then pre every batch | 68.6510 ± 0.8676 | 1.0788 ± 0.0028 | 0.0000 ± 0.0000 | 0.0013 ± 0.0000 | 11.9602 ± 0.0616 |
+
+[CSV](result/table3.csv)
 
 #### Table 4 — N-MNIST decision and timing summary
 
-`result/table4.csv` (pending)
+| Metric | Post-only | Doubly |
+|---|---:|---:|
+| Accuracy | 97.143 | 97.465 (+0.322) |
+| No decision | 0.173% | 0.030% (-0.142%) |
+| Correct earliness | 46.559% | 52.685% (+6.126%) |
+| Wrong earliness | 8.982% | 12.297% (+3.315%) |
+| Gap | 37.577% | 40.388% (+2.810%) |
+
+[CSV](result/table4.csv)
 
 ## License
 
