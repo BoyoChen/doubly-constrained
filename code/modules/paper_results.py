@@ -267,7 +267,7 @@ def build(out,logs):
     figure1(out,curves,units,mean)
     # Paired slope chart: one line per seed, so the reader sees every paired
     # difference rather than two bars on a truncated axis.
-    fig,axes=plt.subplots(1,2,figsize=(3.4,2.35))
+    fig,axes=plt.subplots(1,2,figsize=(3.4,1.75))
     ev=frame[frame.dataset=='nmnist'].set_index(['condition','seed'])
     seeds=sorted(frame[(frame.dataset=='nmnist')&(frame.condition=='post_every')].seed)
     pairs=[([ev.loc[('post_every',s),k]/100 for s in seeds],
