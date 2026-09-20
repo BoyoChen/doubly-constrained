@@ -129,8 +129,8 @@ fixed-zero direct block and upstream A-1 activity are excluded.
 Figure 3 measures conditional decision dependence. Removal sets may differ between
 models, and matched support does not imply matched timing.
 
-The formal 92-run Prefect reproduction completed on 2026-09-19. All tables and
-figures below were generated from those completed runs.
+All tables and figures below were generated from the 76 runs this repository
+specifies, completed on 2026-09-19.
 
 ## Results
 
