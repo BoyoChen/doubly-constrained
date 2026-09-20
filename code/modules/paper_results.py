@@ -273,9 +273,19 @@ def build(out,logs):
     pairs=[([ev.loc[('post_every',s),k]/100 for s in seeds],
             [ev.loc[('alternating',s),k]/100 for s in seeds])
            for k in ['correct_earliness','wrong_earliness']]
-    # One span for both panels, so the two slopes are directly comparable.
-    SPAN=max(max(x+y)-min(x+y) for x,y in pairs)*1.55
-    for ax,(a,b),title in zip(axes,pairs,['Correct earliness','Wrong earliness']):
+    # One round span for both panels, so the two slopes are directly comparable
+    # and both axes read off round numbers (e.g. 0.45-0.55 against 0.05-0.15).
+    NICE=[.005,.01,.02,.025,.05,.1,.2,.25,.5,1.]
+    SPAN=next(s for s in NICE if s>=max(max(x+y)-min(x+y) for x,y in pairs)*1.25)
+    STEP=SPAN/2
+    DEC=max(0,-int(np.floor(np.log10(STEP))))
+    limits=[]
+    for a,b in pairs:
+        lo=np.floor(min(a+b)/STEP)*STEP
+        while lo+SPAN<max(a+b):lo+=STEP
+        limits.append((lo,lo+SPAN))
+    for ax,(a,b),(lo,hi),title in zip(axes,pairs,limits,
+                                      ['Correct earliness','Wrong earliness']):
         for lo_,hi_ in zip(a,b):
             ax.plot([0,1],[lo_,hi_],color='#b8b8b8',linewidth=.7,zorder=1,
                     solid_capstyle='round')
@@ -287,10 +297,11 @@ def build(out,logs):
                     solid_capstyle='butt')
             ax.annotate(f'{m:.4f}',(x,m),xytext=(0,off),textcoords='offset points',
                         ha='center',fontsize=6.3,color=col)
-        mid=(min(a+b)+max(a+b))/2
-        ax.set(xlim=(-.5,1.5),ylim=(mid-SPAN/2,mid+SPAN/2),xticks=[0,1],
+        ticks=np.round(np.arange(lo,hi+STEP/2,STEP),DEC+1)
+        ax.set(xlim=(-.5,1.5),ylim=(lo,hi),xticks=[0,1],
                xticklabels=['Post-only','Doubly'],title=title)
-        ax.set_yticks(np.round(np.linspace(mid-SPAN/2.6,mid+SPAN/2.6,3),3))
+        ax.set_yticks(ticks)
+        ax.set_yticklabels([f'{v:.{DEC}f}' for v in ticks])
         for side in ('top','right'):ax.spines[side].set_visible(False)
         for side in ('left','bottom'):
             ax.spines[side].set_linewidth(.5);ax.spines[side].set_color('#6b6b6b')
