@@ -265,19 +265,36 @@ def build(out,logs):
         table.to_csv(out/f'table{num}.csv',index=False)
     plt.rcParams.update(FONT)
     figure1(out,curves,units,mean)
+    # Paired slope chart: one line per seed, so the reader sees every paired
+    # difference rather than two bars on a truncated axis.
     fig,axes=plt.subplots(1,2,figsize=(3.4,2.35))
-    limits=[(.35,.55),(.05,.25)];ticksets=[[.4,.5],[.1,.2]]
-    evidence=[[mean.loc[('nmnist',c),k]/100 for c in ['post_every','alternating']] for k in ['correct_earliness','wrong_earliness']]
-    if any(not all(lo<=v<=hi for v in values) for values,(lo,hi) in zip(evidence,limits)):
-        span=max(.2,max(max(v)-min(v) for v in evidence)+.08)
-        limits=[(min(v)-.04,min(v)-.04+span) for v in evidence]
-        ticksets=[np.linspace(lo,hi,3) for lo,hi in limits]
-    for ax,k,ylim,ticks in zip(axes,['correct_earliness','wrong_earliness'],limits,ticksets):
-        v=[mean.loc[('nmnist',c),k]/100 for c in ['post_every','alternating']]
-        ax.bar([0,1],v,color=COLORS[:2],width=.55)
-        ax.set(ylim=ylim,yticks=ticks,xticks=[0,1],xticklabels=['Post-only','Doubly'],title=k.replace('_',' ').capitalize())
-        ax.tick_params(axis='x',labelrotation=30)
-        for x,y in enumerate(v):ax.annotate(f'{y:.4f}',(x,y),xytext=(0,3),textcoords='offset points',ha='center',fontsize=7)
+    ev=frame[frame.dataset=='nmnist'].set_index(['condition','seed'])
+    seeds=sorted(frame[(frame.dataset=='nmnist')&(frame.condition=='post_every')].seed)
+    pairs=[([ev.loc[('post_every',s),k]/100 for s in seeds],
+            [ev.loc[('alternating',s),k]/100 for s in seeds])
+           for k in ['correct_earliness','wrong_earliness']]
+    # One span for both panels, so the two slopes are directly comparable.
+    SPAN=max(max(x+y)-min(x+y) for x,y in pairs)*1.55
+    for ax,(a,b),title in zip(axes,pairs,['Correct earliness','Wrong earliness']):
+        for lo_,hi_ in zip(a,b):
+            ax.plot([0,1],[lo_,hi_],color='#b8b8b8',linewidth=.7,zorder=1,
+                    solid_capstyle='round')
+        ax.scatter([0]*len(a),a,s=13,color=BLUE,zorder=3,linewidths=0)
+        ax.scatter([1]*len(b),b,s=13,color=ORANGE,zorder=3,linewidths=0)
+        for x,vals,col,off in ((0,a,BLUE,-11),(1,b,ORANGE,6)):
+            m=float(np.mean(vals))
+            ax.plot([x-.22,x+.22],[m,m],color=col,linewidth=1.5,zorder=2,
+                    solid_capstyle='butt')
+            ax.annotate(f'{m:.4f}',(x,m),xytext=(0,off),textcoords='offset points',
+                        ha='center',fontsize=6.3,color=col)
+        mid=(min(a+b)+max(a+b))/2
+        ax.set(xlim=(-.5,1.5),ylim=(mid-SPAN/2,mid+SPAN/2),xticks=[0,1],
+               xticklabels=['Post-only','Doubly'],title=title)
+        ax.set_yticks(np.round(np.linspace(mid-SPAN/2.6,mid+SPAN/2.6,3),3))
+        for side in ('top','right'):ax.spines[side].set_visible(False)
+        for side in ('left','bottom'):
+            ax.spines[side].set_linewidth(.5);ax.spines[side].set_color('#6b6b6b')
+        ax.tick_params(width=.5,length=2.2,labelsize=6.2)
     fig.tight_layout();save(fig,out/'figure2')
     return frame
 
