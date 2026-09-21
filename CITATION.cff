@@ -4,7 +4,7 @@ title: "Doubly-Constrained Normalization: reproduction code"
 abstract: >-
   Configurations, analysis and tests that regenerate the tables and figures of
   "Doubly-Constrained Normalization in Spiking Networks: Direction, Frequency and
-  Placement". The paper reference and its DOI are added once the paper is published.
+  Placement". The paper reference is added once the paper is published.
 type: software
 authors:
   - family-names: Chen
@@ -15,6 +15,7 @@ authors:
     given-names: Naoto
     orcid: "https://orcid.org/0000-0002-7321-4590"
     affiliation: "The University of Tokyo; RIKEN Center for Advanced Intelligence Project"
+doi: "10.5281/zenodo.22875127"
 repository-code: "https://github.com/BoyoChen/doubly-constrained"
 license: MIT
 version: "1.0-icassp2027-submission"

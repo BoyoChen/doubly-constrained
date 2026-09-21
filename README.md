@@ -1,5 +1,7 @@
 # Doubly-constrained normalization: experiment reproduction
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22875127.svg)](https://doi.org/10.5281/zenodo.22875127)
+
 
 ## Installation
 
@@ -223,10 +225,10 @@ bit for bit. Verification is by retraining and comparing the reported statistics
 Seeds are fixed, so a rerun on the same software and hardware should land very
 close; a different GPU, driver or library version will not reproduce the same bits.
 
-**No archival release.** This repository is a moving `main` branch, not a frozen
-artifact with a DOI. The state the paper reports is tagged
-`v1.0-icassp2027-submission`; cite that tag if you need a fixed reference. A Zenodo
-or similar archival deposit is not yet in place.
+**Use the archived version for a fixed reference.** `main` moves. The state the
+paper reports is tagged `v1.0-icassp2027-submission` and deposited at
+[10.5281/zenodo.22875127](https://doi.org/10.5281/zenodo.22875127), which is what to cite. Later releases get their
+own DOIs.
 
 **Logs are not published.** `logs/` and `saved_models/` are excluded by
 `.gitignore`. Training all 220 runs is the way to regenerate them.
