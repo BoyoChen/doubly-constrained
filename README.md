@@ -212,6 +212,14 @@ silent by epoch 4, so there is nothing to compare.
 
 [CSV](result/table3.csv)
 
+## Paper
+
+[`paper/doubly-constrained-icassp2027-submitted.pdf`](paper/doubly-constrained-icassp2027-submitted.pdf)
+is the manuscript submitted to ICASSP 2027. It is the submitted version, not a
+published one, and carries no IEEE copyright notice because none applies before
+acceptance. If the paper is accepted this file is replaced by the accepted version
+with the notice IEEE requires and a link to the version of record.
+
 ## What this reproduction does and does not give you
 
 It retrains. Every number in `result/` comes from running the configurations in
