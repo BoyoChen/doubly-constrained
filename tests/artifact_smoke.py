@@ -84,9 +84,9 @@ def main():
     sender_summary=build_sender(logs=sender_logs)
     assert len(sender_summary)==8
     sender_column(sender_summary,out/'chapter')
-    expected={f'figure{i}.pdf' for i in range(1,4)}|{f'table{i}.csv' for i in range(1,4)}
+    expected={f'figure{i}.pdf' for i in range(1,4)}|{f'table{i}.csv' for i in range(1,5)}
     actual={path.name for path in (out/'chapter').iterdir() if path.is_file()}
     assert actual==expected,(sorted(expected),sorted(actual))
-    report['main_table_count']=3;report['figure_count']=3
+    report['main_table_count']=4;report['figure_count']=3
     (out/'report.json').write_text(json.dumps(report,indent=2));print(json.dumps(report,indent=2))
 if __name__=='__main__':main()

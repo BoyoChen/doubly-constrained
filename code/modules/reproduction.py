@@ -13,12 +13,15 @@ sys.path.insert(0, str(ROOT / 'code'))
 from modules.experiment_helper import parse_experiment_settings
 
 FILES = {'mnist': '01_mnist.yaml', 'structure': '01_mnist.yaml',
-         'nmnist': '02_nmnist_t20.yaml', 'sender': '03_sender.yaml'}
+         'nmnist': '02_nmnist_t20.yaml', 'sender': '03_sender.yaml',
+         'lifetime_mnist': '04_lifetime_mnist.yaml',
+         'lifetime_nmnist': '05_lifetime_nmnist.yaml'}
 
 
 def settings(group, stage='all', seed=None):
     if group == 'all':
-        return [r for g in ['mnist','nmnist','sender'] for r in settings(g,stage,seed)]
+        return [r for g in ['mnist','nmnist','sender','lifetime_mnist','lifetime_nmnist']
+                for r in settings(g,stage,seed)]
     rows = parse_experiment_settings(ROOT / 'code/experiments' / FILES[group])
     selected = []
     for row in rows:

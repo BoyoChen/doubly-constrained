@@ -25,6 +25,8 @@ python main.py experiments
 python main.py experiments/01_mnist.yaml
 python main.py experiments/02_nmnist_t20.yaml
 python main.py experiments/03_sender.yaml
+python main.py experiments/04_lifetime_mnist.yaml
+python main.py experiments/05_lifetime_nmnist.yaml
 ```
 
 The sender experiment automatically trains its shared prefixes before loading
@@ -54,7 +56,7 @@ logs/paper_doubly_sender/{run-name}/
 
 The sender experiment also saves the shared-prefix and final checkpoints under
 `saved_models/paper_doubly_sender/`. MNIST and N-MNIST do not save model
-checkpoints. After all 172 runs finish, the analysis step writes the paper-ready
+checkpoints. After all 220 runs finish, the analysis step writes the paper-ready
 sample outputs directly to `result/`.
 
 ### Experiment files
@@ -64,6 +66,8 @@ sample outputs directly to `result/`.
 | `01_mnist.yaml` | MNIST | 34000–34003 | 20 epochs | Tables 1, 2; Figure 1 |
 | `02_nmnist_t20.yaml` | Native N-MNIST, T=20 | 35100–35103 | 20 epochs | Tables 1–3; Figure 2 |
 | `03_sender.yaml` | MNIST | 40500–40503 | 1 shared + 19 continuation epochs | Figure 3 |
+| `04_lifetime_mnist.yaml` | MNIST | 34000–34003 | 20 epochs, or 2 | Table 4 |
+| `05_lifetime_nmnist.yaml` | Native N-MNIST, T=20 | 35100–35103 | 20 epochs, or 2 | Table 4 |
 
 MNIST follows the receiver-side-amplifier-compatible Temporal-Margin `ex767`/`ex781`
 substrate; N-MNIST follows its native T=20 `ex788` fixed-amplifier-10 substrate.
@@ -129,12 +133,12 @@ fixed-zero direct block and upstream A-1 activity are excluded.
 Figure 3 measures conditional decision dependence. Removal sets may differ between
 models, and matched support does not imply matched timing.
 
-All tables and figures below were generated from the 172 runs this repository
+All tables and figures below were generated from the 220 runs this repository
 specifies, completed on 2026-09-19.
 
 ## Results
 
-The verified outputs below are reproducible samples from the full 172-run
+The verified outputs below are reproducible samples from the full 220-run
 experiment. Every condition trained here is consumed by one of the three
 figures or three tables. Figure 1 uses the recorded per-unit hidden activity
 and the full output-layer weight matrices; accuracy and timing use the full
@@ -173,6 +177,21 @@ test set.
 | Doubly | Doubly | 98.120 ± 0.050 (+0.173) | 97.430 ± 0.068 (+0.287) |
 
 [CSV](result/table2.csv)
+
+#### Table 4 — Layer placement against plastic lifetime
+
+The paired difference between doubly at the output layer and doubly at the hidden
+layer, in percentage points, with a 95% interval. The first row is the schedule used
+everywhere else, at the ten seeds of Table 2. The other two give both layers the same
+plastic span, at four seeds, which separates where the constraint acts from how long
+each layer stays plastic. On N-MNIST with twenty epochs each, every network falls
+silent by epoch 4, so there is nothing to compare.
+
+| Hidden epochs plastic | Output epochs plastic | MNIST | N-MNIST |
+| --- | --- | --- | --- |
+| 2 | 20 | +0.386 [+0.278, +0.494] n=10 | +0.661 [+0.617, +0.705] n=10 |
+| 20 | 20 | +1.163 [+0.817, +1.508] n=4 | silent |
+| 2 | 2 | +6.575 [+5.145, +8.005] n=4 | +0.013 [-1.976, +2.001] n=4 |
 
 #### Table 3 — N-MNIST decision and timing summary
 

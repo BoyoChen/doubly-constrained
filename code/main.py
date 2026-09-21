@@ -85,7 +85,7 @@ def execute_sub_exp(sub_exp_settings, repeat_all_subexp):
 def main():
     parser = argparse.ArgumentParser(description='Train experiments and generate the Doubly chapter from one entry point.')
     parser.add_argument('experiment_path', nargs='?', default='experiments',
-                        help='experiments (all), or experiments/01_mnist.yaml, 02_nmnist_t20.yaml, 03_sender.yaml')
+                        help='experiments (all), or one of its five YAML files')
     actions = parser.add_mutually_exclusive_group()
     actions.add_argument('--dry-run', action='store_true', help='Show selected runs without training or downloads.')
     actions.add_argument('--analyze', action='store_true', help='Generate figures/tables from completed runs only.')
@@ -101,7 +101,7 @@ def main():
         group='all'
     else:
         matches=[g for g,f in FILES.items() if g!='structure' and path==(ROOT/'code/experiments'/f).resolve()]
-        if not matches:parser.error('Choose the experiments directory or one of its three YAML files.')
+        if not matches:parser.error('Choose the experiments directory or one of its five YAML files.')
         group=matches[0]
     if group=='all' and args.seed is not None:parser.error('--seed requires one experiment file')
     if group!='sender' and args.stage!='all':parser.error('--stage applies only to 03_sender.yaml')

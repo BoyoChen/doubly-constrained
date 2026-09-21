@@ -106,6 +106,38 @@
     "table3": "N-MNIST post_every versus alternating: accuracy, no-decision, correct/wrong earliness, gap",
     "figure1": "MNIST, the four every-batch schedules of Table 1: hidden-unit firing-rate distribution and cumulative singular-value mass",
     "figure2": "N-MNIST post_every versus alternating correct/wrong earliness",
-    "figure3": "MNIST sender intervention: shared prefix and two adaptive arms; validation diagnostic subset"
+    "figure3": "MNIST sender intervention: shared prefix and two adaptive arms; validation diagnostic subset",
+    "table4": "Both datasets, the output-minus-hidden contrast at three plastic spans: as trained from table2, and both layers at twenty and at two epochs"
+  },
+  "lifetime": {
+    "purpose": "Separates layer placement from how long each layer stays plastic",
+    "files": {
+      "mnist": "04_lifetime_mnist.yaml",
+      "nmnist": "05_lifetime_nmnist.yaml"
+    },
+    "placements": [
+      "post_every",
+      "hidden_only",
+      "alternating"
+    ],
+    "spans": {
+      "life20": "neither layer freezes, both plastic for twenty epochs",
+      "life2": "training stops after two epochs, both plastic for two"
+    },
+    "seeds": {
+      "mnist": [
+        34000,
+        34001,
+        34002,
+        34003
+      ],
+      "nmnist": [
+        35100,
+        35101,
+        35102,
+        35103
+      ]
+    },
+    "runs": 48
   }
 }

@@ -330,6 +330,62 @@ def sender_column(table,out):
         for x,y in enumerate(values):ax.text(x,y+2,f'{y:.2f}',ha='center',fontsize=7)
     fig.tight_layout();save(fig,out/'figure3')
 
+
+# Table 4: layer placement against how long each layer stays plastic. The first
+# row is the schedule used everywhere else, at the ten seeds of Table 2; the
+# other two give both layers the same plastic span, at four seeds.
+LIFETIME = [('2', '20', '', ('mnist', 'nmnist')),
+            ('20', '20', '_life20', ('lifetime_mnist', 'lifetime_nmnist')),
+            ('2', '2', '_life2', ('lifetime_mnist', 'lifetime_nmnist'))]
+
+
+def run_accuracy(row):
+    """Final test accuracy of one completed run, gated on its settings hash."""
+    folder = ROOT / 'logs' / row['experiment_name'] / row['sub_exp_name']
+    marker = folder / 'reproduction_complete.json'
+    expected = hashlib.sha256(json.dumps(row, sort_keys=True).encode()).hexdigest()
+    if json.loads(marker.read_text())['settings_sha256'] != expected:
+        raise ValueError(f'Settings mismatch: {folder}')
+    events = EventAccumulator(str(folder), size_guidance={'scalars': 0})
+    events.Reload()
+    epoch = row['training_settings']['max_epoch']
+    return 100 * _scalar_at_epoch(events, 'accuracy/top_spike/test', epoch)
+
+
+def condition_accuracy(group, condition):
+    """Accuracy per seed for one condition of one experiment group."""
+    out = {}
+    for row in settings(group):
+        name = row['sub_exp_name']
+        if name.rsplit('_seed', 1)[0].split('_', 1)[1] != condition:
+            continue
+        out[row['seed']] = run_accuracy(row)
+    if not out:
+        raise ValueError(f'No runs for {group}/{condition}')
+    return out
+
+
+def build_lifetime(out):
+    records = []
+    for hidden, output, suffix, groups in LIFETIME:
+        record = {'hidden_epochs_plastic': hidden, 'output_epochs_plastic': output}
+        for dataset, group in zip(['mnist', 'nmnist'], groups):
+            top = condition_accuracy(group, 'alternating' + suffix)
+            bottom = condition_accuracy(group, 'hidden_only' + suffix)
+            seeds = sorted(set(top) & set(bottom))
+            if np.mean([top[s] for s in seeds] + [bottom[s] for s in seeds]) < 1.:
+                record[dataset] = 'silent'
+                continue
+            d = np.array([top[s] - bottom[s] for s in seeds])
+            half = t.ppf(.975, len(d) - 1) * d.std(ddof=1) / np.sqrt(len(d))
+            record[dataset] = (f'{d.mean():+.3f} [{d.mean()-half:+.3f}, '
+                               f'{d.mean()+half:+.3f}] n={len(d)}')
+        records.append(record)
+    frame = pd.DataFrame(records)
+    frame.to_csv(out / 'table4.csv', index=False)
+    return frame
+
+
 def generate_results(sender_only=False):
     out=ROOT/'result'
     if not sender_only and out.exists():
@@ -338,6 +394,7 @@ def generate_results(sender_only=False):
     out.mkdir(parents=True,exist_ok=True)
     if not sender_only:
         build(out,ROOT/'logs')
+        build_lifetime(out)
     for row in settings('sender'):
         marker=ROOT/'logs'/row['experiment_name']/row['sub_exp_name']/'reproduction_complete.json'
         expected=hashlib.sha256(json.dumps(row,sort_keys=True).encode()).hexdigest()
@@ -346,7 +403,7 @@ def generate_results(sender_only=False):
     sender_summary=build_sender()
     sender_column(sender_summary,out)
     if not sender_only:
-        expected={f'figure{i}.pdf' for i in range(1,4)}|{f'table{i}.csv' for i in range(1,4)}
+        expected={f'figure{i}.pdf' for i in range(1,4)}|{f'table{i}.csv' for i in range(1,5)}
         actual={path.name for path in out.iterdir() if path.is_file()}
         if actual != expected:
             raise RuntimeError(f'Unexpected result files: expected {sorted(expected)}, got {sorted(actual)}')

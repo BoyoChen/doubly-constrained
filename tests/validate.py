@@ -17,19 +17,45 @@ SCHEDULES={
  'hidden_only':(2,2,1,0,1),'alternating':(1,0,2,2,1),
 }
 
+# The lifetime control: each condition reuses a placement from SCHEDULES and
+# changes only how long the layers stay plastic. life20 disables the staged
+# freeze; life2 stops training after the two plastic epochs.
+LIFETIME_PLACEMENTS=['post_every','hidden_only','alternating']
+LIFETIME_SPANS={'life20':(False,20),'life2':(True,2)}
+
 def main():
     p=argparse.ArgumentParser();p.add_argument('--construct-models',action='store_true');a=p.parse_args()
     coverage=json.loads((ROOT/'code/coverage.json').read_text());report={'groups':{},'models':[],'full_training':False}
-    for group,file in [('mnist','01_mnist.yaml'),('nmnist','02_nmnist_t20.yaml'),('sender','03_sender.yaml')]:
+    for group,file in [('mnist','01_mnist.yaml'),('nmnist','02_nmnist_t20.yaml'),('sender','03_sender.yaml'),
+                       ('lifetime_mnist','04_lifetime_mnist.yaml'),('lifetime_nmnist','05_lifetime_nmnist.yaml')]:
         raw=(ROOT/'code/experiments'/file).read_text(encoding='utf8');doc=yaml.safe_load(raw)
         assert list(doc)==['experiment_name','shared_settings','sub_experiments']
         assert not any(isinstance(e,yaml.AliasEvent) or getattr(e,'anchor',None) for e in yaml.parse(raw))
         rows=settings(group);assert len({r['sub_exp_name'] for r in rows})==len(rows)
-        if group!='sender':
+        lifetime=group.startswith('lifetime_')
+        if lifetime:
+            dataset=group.split('_',1)[1];cov=coverage['lifetime']
+            names={r['sub_exp_name'].rsplit('_seed',1)[0][len(dataset)+1:] for r in rows}
+            assert names=={f'{p}_{s}' for p in LIFETIME_PLACEMENTS for s in LIFETIME_SPANS}
+            for r in rows:
+                name=r['sub_exp_name'].rsplit('_seed',1)[0][len(dataset)+1:]
+                placement,span=name.rsplit('_',1)
+                frozen,epochs=LIFETIME_SPANS[span];t=r['training_settings']
+                assert r['seed'] in cov['seeds'][dataset] and t['max_epoch']==epochs
+                assert t['training_schedule']['enabled']==frozen
+                if frozen:
+                    assert t['training_schedule']['stages']==[{'start_epoch':2,'frozen_cortex_ids':['A-1','A']}]
+                n=r['model']['cortex_spec']['base_cortex_settings']['kernel_settings']['normalize_settings']
+                assert (n['dim_0_freq_by_cortex']['A-1'],n['dim_1_freq_by_cortex']['A-1'],
+                        n['dim_0_freq_by_cortex']['A'],n['dim_1_freq_by_cortex']['A'],
+                        n['freq_diff'])==SCHEDULES[placement],name
+        elif group!='sender':
             assert {r['sub_exp_name'].rsplit('_seed',1)[0][len(group)+1:] for r in rows}==set(SCHEDULES)
-        assert len(rows)==(12 if group=='sender' else 80);report['groups'][group]=len(rows);seen=set()
+        assert len(rows)==(12 if group=='sender' else 24 if lifetime else 80);report['groups'][group]=len(rows);seen=set()
         for r in rows:
             assert 'sham' not in r['sub_exp_name']
+            if lifetime:
+                continue
             if group!='sender':
                 ds=coverage['datasets'][group];t=r['training_settings'];d=t['diagnostic_settings']
                 assert r['seed'] in ds['seeds'] and t['max_epoch']==ds['final_epoch']
