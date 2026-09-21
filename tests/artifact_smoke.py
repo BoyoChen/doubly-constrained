@@ -9,7 +9,7 @@ import numpy as np
 import torch
 from torch.utils.data import DataLoader,TensorDataset
 from modules.reproduction import settings,ROOT,HERE
-from modules.paper_results import build,derive,sender_column,build_sender
+from modules.paper_results import build,derive,sender_column,build_sender,build_lifetime
 import pandas as pd
 from modules.model_IO import construct_model
 from modules.training_helper import inspect_model
@@ -84,6 +84,28 @@ def main():
     sender_summary=build_sender(logs=sender_logs)
     assert len(sender_summary)==8
     sender_column(sender_summary,out/'chapter')
+    # Table 4 reads one accuracy scalar per run and no artifacts, so the fixture
+    # is a TensorBoard event file per lifetime run.
+    from torch.utils.tensorboard import SummaryWriter
+    needed=[('mnist',('alternating','hidden_only')),('nmnist',('alternating','hidden_only')),
+            ('lifetime_mnist',None),('lifetime_nmnist',None)]
+    for gi,(group,only) in enumerate(needed):
+        rows=[r for r in settings(group)
+              if only is None or r['sub_exp_name'].rsplit('_seed',1)[0].split('_',1)[1] in only]
+        for ri,row in enumerate(rows):
+            dest=out/'logs'/row['experiment_name']/row['sub_exp_name']
+            dest.mkdir(parents=True,exist_ok=True)
+            writer=SummaryWriter(str(dest))
+            writer.add_scalar('accuracy/top_spike/test',.90+.001*((gi*37+ri*13)%11),
+                              row['training_settings']['max_epoch'])
+            writer.close()
+            digest=hashlib.sha256(json.dumps(row,sort_keys=True).encode()).hexdigest()
+            (dest/'reproduction_complete.json').write_text(
+                json.dumps({'settings_sha256':digest,'synthetic_only':True}))
+    lifetime=build_lifetime(out/'chapter',out/'logs')
+    assert len(lifetime)==3 and set(lifetime.columns)=={
+        'hidden_epochs_plastic','output_epochs_plastic','mnist','nmnist'}
+    report['lifetime_rows']=len(lifetime)
     expected={f'figure{i}.pdf' for i in range(1,4)}|{f'table{i}.csv' for i in range(1,5)}
     actual={path.name for path in (out/'chapter').iterdir() if path.is_file()}
     assert actual==expected,(sorted(expected),sorted(actual))

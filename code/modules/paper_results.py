@@ -339,9 +339,9 @@ LIFETIME = [('2', '20', '', ('mnist', 'nmnist')),
             ('2', '2', '_life2', ('lifetime_mnist', 'lifetime_nmnist'))]
 
 
-def run_accuracy(row):
+def run_accuracy(row, logs=None):
     """Final test accuracy of one completed run, gated on its settings hash."""
-    folder = ROOT / 'logs' / row['experiment_name'] / row['sub_exp_name']
+    folder = (logs or ROOT / 'logs') / row['experiment_name'] / row['sub_exp_name']
     marker = folder / 'reproduction_complete.json'
     expected = hashlib.sha256(json.dumps(row, sort_keys=True).encode()).hexdigest()
     if json.loads(marker.read_text())['settings_sha256'] != expected:
@@ -352,26 +352,26 @@ def run_accuracy(row):
     return 100 * _scalar_at_epoch(events, 'accuracy/top_spike/test', epoch)
 
 
-def condition_accuracy(group, condition):
+def condition_accuracy(group, condition, logs=None):
     """Accuracy per seed for one condition of one experiment group."""
     out = {}
     for row in settings(group):
         name = row['sub_exp_name']
         if name.rsplit('_seed', 1)[0].split('_', 1)[1] != condition:
             continue
-        out[row['seed']] = run_accuracy(row)
+        out[row['seed']] = run_accuracy(row, logs)
     if not out:
         raise ValueError(f'No runs for {group}/{condition}')
     return out
 
 
-def build_lifetime(out):
+def build_lifetime(out, logs=None):
     records = []
     for hidden, output, suffix, groups in LIFETIME:
         record = {'hidden_epochs_plastic': hidden, 'output_epochs_plastic': output}
         for dataset, group in zip(['mnist', 'nmnist'], groups):
-            top = condition_accuracy(group, 'alternating' + suffix)
-            bottom = condition_accuracy(group, 'hidden_only' + suffix)
+            top = condition_accuracy(group, 'alternating' + suffix, logs)
+            bottom = condition_accuracy(group, 'hidden_only' + suffix, logs)
             seeds = sorted(set(top) & set(bottom))
             if np.mean([top[s] for s in seeds] + [bottom[s] for s in seeds]) < 1.:
                 record[dataset] = 'silent'
