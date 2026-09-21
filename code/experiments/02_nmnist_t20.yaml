@@ -199,6 +199,12 @@ sub_experiments:
   - 35101
   - 35102
   - 35103
+  - 35104
+  - 35105
+  - 35106
+  - 35107
+  - 35108
+  - 35109
   description:
     subexp: 'No normalization at any layer: neither the hidden layer A-1 nor the output layer
       A is normalized in any update. Completes the all-layer schedule comparison as the unconstrained
@@ -401,6 +407,12 @@ sub_experiments:
   - 35101
   - 35102
   - 35103
+  - 35104
+  - 35105
+  - 35106
+  - 35107
+  - 35108
+  - 35109
   description:
     subexp: Post every batch; output-only schedule unless explicitly hidden_only/all_layers;
       matched dataset base.
@@ -602,6 +614,12 @@ sub_experiments:
   - 35101
   - 35102
   - 35103
+  - 35104
+  - 35105
+  - 35106
+  - 35107
+  - 35108
+  - 35109
   description:
     subexp: Postsynaptic (per-receiver) normalization on every other update, in both the hidden
       layer A-1 and the output layer A; no presynaptic normalization anywhere. Half-frequency
@@ -805,6 +823,12 @@ sub_experiments:
   - 35101
   - 35102
   - 35103
+  - 35104
+  - 35105
+  - 35106
+  - 35107
+  - 35108
+  - 35109
   description:
     subexp: Presynaptic (per-sender) normalization only, applied at every update in both the
       hidden layer A-1 and the output layer A; no postsynaptic normalization anywhere. Frequency-matched
@@ -1008,6 +1032,12 @@ sub_experiments:
   - 35101
   - 35102
   - 35103
+  - 35104
+  - 35105
+  - 35106
+  - 35107
+  - 35108
+  - 35109
   description:
     subexp: Presynaptic (per-sender) normalization on every other update, in both the hidden
       layer A-1 and the output layer A; no postsynaptic normalization anywhere. Half-frequency
@@ -1212,6 +1242,12 @@ sub_experiments:
   - 35101
   - 35102
   - 35103
+  - 35104
+  - 35105
+  - 35106
+  - 35107
+  - 35108
+  - 35109
   description:
     subexp: Doubly all layers; output-only schedule unless explicitly hidden_only/all_layers;
       matched dataset base.
@@ -1413,6 +1449,12 @@ sub_experiments:
   - 35101
   - 35102
   - 35103
+  - 35104
+  - 35105
+  - 35106
+  - 35107
+  - 35108
+  - 35109
   description:
     subexp: Doubly hidden only; output-only schedule unless explicitly hidden_only/all_layers;
       matched dataset base.
@@ -1614,6 +1656,12 @@ sub_experiments:
   - 35101
   - 35102
   - 35103
+  - 35104
+  - 35105
+  - 35106
+  - 35107
+  - 35108
+  - 35109
   description:
     subexp: Doubly alternating; output-only schedule unless explicitly hidden_only/all_layers;
       matched dataset base.

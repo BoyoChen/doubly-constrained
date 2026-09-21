@@ -27,7 +27,7 @@ def main():
         rows=settings(group);assert len({r['sub_exp_name'] for r in rows})==len(rows)
         if group!='sender':
             assert {r['sub_exp_name'].rsplit('_seed',1)[0][len(group)+1:] for r in rows}==set(SCHEDULES)
-        assert len(rows)==(12 if group=='sender' else 32);report['groups'][group]=len(rows);seen=set()
+        assert len(rows)==(12 if group=='sender' else 80);report['groups'][group]=len(rows);seen=set()
         for r in rows:
             assert 'sham' not in r['sub_exp_name']
             if group!='sender':

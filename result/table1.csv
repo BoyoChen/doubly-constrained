@@ -1,7 +1,7 @@
 method,schedule,mnist,nmnist
-No constraint,- - - -,52.952 ± 0.827,18.980 ± 1.648
-Post only,Q Q Q Q,97.948 ± 0.013,97.143 ± 0.091
-"Post only, 1/2 freq",- Q - Q,97.690 ± 0.104,97.067 ± 0.100
-Pre only,P P P P,67.963 ± 1.735,44.685 ± 2.103
-"Pre only, 1/2 freq",P - P -,63.673 ± 4.892,45.565 ± 1.729
-"Doubly, alternating",P Q P Q,98.120 ± 0.050,97.430 ± 0.068
+No constraint,- - - -,53.098 ± 0.687,19.158 ± 2.106
+Post only,Q Q Q Q,97.977 ± 0.051,97.131 ± 0.102
+"Post only, 1/2 freq",- Q - Q,97.716 ± 0.121,97.041 ± 0.112
+Pre only,P P P P,66.123 ± 2.999,44.726 ± 2.292
+"Pre only, 1/2 freq",P - P -,63.917 ± 3.300,45.847 ± 1.348
+"Doubly, alternating",P Q P Q,98.142 ± 0.066,97.443 ± 0.057

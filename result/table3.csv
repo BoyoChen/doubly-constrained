@@ -1,6 +1,6 @@
 metric,Post-only,Doubly
-accuracy,97.143,97.465 (+0.322)
-no_decision,0.173%,0.030% (-0.142%)
-correct_earliness,46.559%,52.685% (+6.126%)
-wrong_earliness,8.982%,12.297% (+3.315%)
-gap,37.577%,40.388% (+2.810%)
+accuracy,97.131,97.459 (+0.328)
+no_decision,0.181%,0.030% (-0.151%)
+correct_earliness,46.534%,52.716% (+6.182%)
+wrong_earliness,8.964%,12.302% (+3.338%)
+gap,37.570%,40.414% (+2.844%)

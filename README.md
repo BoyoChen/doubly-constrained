@@ -54,7 +54,7 @@ logs/paper_doubly_sender/{run-name}/
 
 The sender experiment also saves the shared-prefix and final checkpoints under
 `saved_models/paper_doubly_sender/`. MNIST and N-MNIST do not save model
-checkpoints. After all 76 runs finish, the analysis step writes the paper-ready
+checkpoints. After all 172 runs finish, the analysis step writes the paper-ready
 sample outputs directly to `result/`.
 
 ### Experiment files
@@ -129,12 +129,12 @@ fixed-zero direct block and upstream A-1 activity are excluded.
 Figure 3 measures conditional decision dependence. Removal sets may differ between
 models, and matched support does not imply matched timing.
 
-All tables and figures below were generated from the 76 runs this repository
+All tables and figures below were generated from the 172 runs this repository
 specifies, completed on 2026-09-19.
 
 ## Results
 
-The verified outputs below are reproducible samples from the full 76-run
+The verified outputs below are reproducible samples from the full 172-run
 experiment. Every condition trained here is consumed by one of the three
 figures or three tables. Figure 1 uses the recorded per-unit hidden activity
 and the full output-layer weight matrices; accuracy and timing use the full

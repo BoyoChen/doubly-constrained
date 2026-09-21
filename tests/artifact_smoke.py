@@ -54,7 +54,7 @@ def main():
             shutil.copytree(art,dest/'mechanism_artifacts',dirs_exist_ok=True)
             digest=hashlib.sha256(json.dumps(row,sort_keys=True).encode()).hexdigest()
             (dest/'reproduction_complete.json').write_text(json.dumps({'settings_sha256':digest,'synthetic_only':True}))
-    frame=build(out/'chapter',out/'logs');assert len(frame)==64
+    frame=build(out/'chapter',out/'logs');assert len(frame)==160
     assert all((out/'chapter'/f'table{i}.csv').is_file() for i in range(1,4))
     # Missing artifacts must fail rather than substituting historical data.
     row=settings('mnist')[0];epoch=row['training_settings']['max_epoch'];target=out/'logs'/row['experiment_name']/row['sub_exp_name']/f'mechanism_artifacts/root_weight_epoch{epoch:03d}.npz'
