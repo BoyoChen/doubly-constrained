@@ -5,7 +5,7 @@ import yaml
 HERE=Path(__file__).resolve().parent
 ROOT=HERE.parent
 sys.path.insert(0,str(ROOT/'code'))
-from modules.reproduction import settings
+from modules.reproduction import settings, FILES
 
 # The normalization contract each condition must satisfy, as
 # (A-1 post, A-1 pre, A post, A pre, freq_diff). 0 = never, 1 = every update,
@@ -23,9 +23,28 @@ SCHEDULES={
 LIFETIME_PLACEMENTS=['post_every','hidden_only','alternating']
 LIFETIME_SPANS={'life20':(False,20),'life2':(True,2)}
 
+def check_readme_table():
+    """The README's experiment table must match the YAML files it describes."""
+    import re
+    text=(ROOT/'README.md').read_text(encoding='utf8')
+    rows=re.findall(r'^\| `(\d\d_[a-z0-9_]+\.yaml)` \|[^|]*\| (\d+)[^\d]+(\d+) \| (\d+) \|',
+                    text,re.M)
+    assert len(rows)==5,f'README lists {len(rows)} experiment files'
+    seen={}
+    for file,first,last,runs in rows:
+        group=[g for g,f in FILES.items() if f==file and g!='structure'][0]
+        got=settings(group);seeds=sorted({r['seed'] for r in got})
+        assert (str(seeds[0]),str(seeds[-1]))==(first,last),(file,seeds[0],seeds[-1])
+        assert len(got)==int(runs),(file,len(got),runs)
+        seen[file]=len(got)
+    total=sum(seen.values())
+    assert f'{total} runs' in text,f'README does not state {total} runs'
+    return seen
+
 def main():
     p=argparse.ArgumentParser();p.add_argument('--construct-models',action='store_true');a=p.parse_args()
     coverage=json.loads((ROOT/'code/coverage.json').read_text());report={'groups':{},'models':[],'full_training':False}
+    report['readme_runs']=check_readme_table()
     for group,file in [('mnist','01_mnist.yaml'),('nmnist','02_nmnist_t20.yaml'),('sender','03_sender.yaml'),
                        ('lifetime_mnist','04_lifetime_mnist.yaml'),('lifetime_nmnist','05_lifetime_nmnist.yaml')]:
         raw=(ROOT/'code/experiments'/file).read_text(encoding='utf8');doc=yaml.safe_load(raw)

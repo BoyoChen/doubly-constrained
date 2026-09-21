@@ -55,19 +55,24 @@ logs/paper_doubly_sender/{run-name}/
 ```
 
 The sender experiment also saves the shared-prefix and final checkpoints under
-`saved_models/paper_doubly_sender/`. MNIST and N-MNIST do not save model
-checkpoints. After all 220 runs finish, the analysis step writes the paper-ready
+`saved_models/paper_doubly_sender/`, because its two arms must continue from one
+shared prefix. No other group saves model weights: the main MNIST and N-MNIST runs
+and the lifetime control all set `save_final_model` and `save_best_model` to false. After all 220 runs finish, the analysis step writes the paper-ready
 sample outputs directly to `result/`.
 
 ### Experiment files
 
-| File | Dataset | Seeds | Training | Outputs |
-|---|---|---:|---:|---|
-| `01_mnist.yaml` | MNIST | 34000–34003 | 20 epochs | Tables 1, 2; Figure 1 |
-| `02_nmnist_t20.yaml` | Native N-MNIST, T=20 | 35100–35103 | 20 epochs | Tables 1–3; Figure 2 |
-| `03_sender.yaml` | MNIST | 40500–40503 | 1 shared + 19 continuation epochs | Figure 3 |
-| `04_lifetime_mnist.yaml` | MNIST | 34000–34003 | 20 epochs, or 2 | Table 4 |
-| `05_lifetime_nmnist.yaml` | Native N-MNIST, T=20 | 35100–35103 | 20 epochs, or 2 | Table 4 |
+| File | Dataset | Seeds | Runs | Training | Outputs |
+|---|---|---:|---:|---:|---|
+| `01_mnist.yaml` | MNIST | 34000–34009 | 80 | 20 epochs | Tables 1, 2, 4; Figure 1 |
+| `02_nmnist_t20.yaml` | Native N-MNIST, T=20 | 35100–35109 | 80 | 20 epochs | Tables 1–4; Figure 2 |
+| `03_sender.yaml` | MNIST | 40500–40503 | 12 | 1 shared + 19 continuation epochs | Figure 3 |
+| `04_lifetime_mnist.yaml` | MNIST | 34000–34003 | 24 | 20 epochs, or 2 | Table 4 |
+| `05_lifetime_nmnist.yaml` | Native N-MNIST, T=20 | 35100–35103 | 24 | 20 epochs, or 2 | Table 4 |
+
+The main experiment runs ten seeds per condition; the lifetime control and the
+sender study run four. `tests/validate.py` checks this table against the YAML
+files, so it cannot drift from them.
 
 MNIST follows the receiver-side-amplifier-compatible Temporal-Margin `ex767`/`ex781`
 substrate; N-MNIST follows its native T=20 `ex788` fixed-amplifier-10 substrate.
@@ -205,8 +210,30 @@ silent by epoch 4, so there is nothing to compare.
 
 [CSV](result/table3.csv)
 
+## What this reproduction does and does not give you
+
+It retrains. Every number in `result/` comes from running the configurations in
+`code/experiments/`, and `tests/validate.py` checks that those configurations are
+the ones the tables describe. Two limits follow from that, and both matter if you
+are checking the paper rather than building on it.
+
+**No released weights.** Only the sender group saves checkpoints. There is no
+published model for the ten main seeds, so you cannot compare weights against ours
+bit for bit. Verification is by retraining and comparing the reported statistics.
+Seeds are fixed, so a rerun on the same software and hardware should land very
+close; a different GPU, driver or library version will not reproduce the same bits.
+
+**No archival release.** This repository is a moving `main` branch, not a frozen
+artifact with a DOI. The state the paper reports is tagged
+`v1.0-icassp2027-submission`; cite that tag if you need a fixed reference. A Zenodo
+or similar archival deposit is not yet in place.
+
+**Logs are not published.** `logs/` and `saved_models/` are excluded by
+`.gitignore`. Training all 220 runs is the way to regenerate them.
+
 ## License
 
 The code is released under the [MIT License](LICENSE). Third-party dependencies
-and datasets retain their respective licenses. Paper citation metadata will be
-added when the public paper details are finalized.
+and datasets retain their respective licenses. `CITATION.cff` carries the metadata
+this repository can state today; the paper reference and its DOI are added once the
+paper is published.
